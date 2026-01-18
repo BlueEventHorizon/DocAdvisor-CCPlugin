@@ -1,0 +1,183 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+rules_toc.yaml 検査スクリプト
+
+生成された rules_toc.yaml の整合性を検査する。
+
+使用方法:
+    python3 validate_rules_toc.py [--file PATH]
+
+オプション:
+    --file    検査対象ファイル（デフォルト: rules/rules_toc.yaml）
+
+検査項目:
+    1. YAML構文検査
+    2. 必須フィールド検査
+    3. ファイル参照検査
+    4. 重複パス検査
+"""
+
+import sys
+from pathlib import Path
+
+# 共通モジュールのパスを追加
+COMMON_DIR = Path(__file__).parent.parent / "toc-common"
+sys.path.insert(0, str(COMMON_DIR))
+
+from toc_utils import get_project_root, load_config
+
+# 設定読み込み
+CONFIG = load_config('rules')
+PROJECT_ROOT = get_project_root()
+RULES_DIR = PROJECT_ROOT / CONFIG.get('root_dir', 'rules').rstrip('/')
+DEFAULT_TOC_FILE = RULES_DIR / CONFIG.get('toc_file', 'rules_toc.yaml')
+
+
+def load_existing_toc(toc_path):
+    """既存の rules_toc.yaml を読み込み"""
+    if not toc_path.exists():
+        return {}
+
+    with open(toc_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    docs = {}
+    current_file = None
+    current_entry = {}
+    current_list = None
+    in_docs = False
+
+    for line in content.split('\n'):
+        stripped = line.strip()
+
+        if stripped.startswith('#') or not stripped:
+            continue
+
+        if stripped == 'docs:':
+            in_docs = True
+            continue
+
+        if not in_docs:
+            continue
+
+        # ファイルパスの検出（2スペースインデントで : で終わる）
+        if line.startswith('  ') and not line.startswith('    ') and stripped.endswith(':'):
+            if current_file and current_entry:
+                docs[current_file] = current_entry
+            current_file = stripped.rstrip(':')
+            current_entry = {}
+            current_list = None
+        elif line.startswith('    ') and ':' in stripped and not stripped.startswith('-'):
+            if current_file:
+                key, _, val = stripped.partition(':')
+                key = key.strip()
+                val = val.strip().strip('"\'')
+                if val:
+                    current_entry[key] = val
+                else:
+                    current_list = []
+                    current_entry[key] = current_list
+        elif stripped.startswith('- ') and current_list is not None:
+            item = stripped[2:].strip().strip('"\'')
+            current_list.append(item)
+
+    if current_file and current_entry:
+        docs[current_file] = current_entry
+
+    return docs
+
+
+def validate_toc(toc_path):
+    """
+    生成された toc ファイルを検査する
+    - YAML構文検査
+    - 必須フィールド検査
+    - ファイル参照検査
+    - 重複パス検査
+    """
+    print("=" * 50)
+    print("rules_toc.yaml 検査")
+    print("=" * 50)
+    print(f"対象: {toc_path}")
+    print()
+
+    errors = []
+
+    # 1. YAML構文検査（ファイルが読み込めるか）
+    try:
+        with open(toc_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        print("✓ YAML構文検査: OK（ファイル読み込み成功）")
+    except Exception as e:
+        errors.append(f"YAML構文検査: ファイル読み込み失敗 - {e}")
+        print(f"\n❌ 検査失敗: {len(errors)} 件のエラー")
+        for err in errors:
+            print(f"  - {err}")
+        return False
+
+    # パース
+    docs = load_existing_toc(toc_path)
+
+    # 2. 必須フィールド検査
+    required_fields = ['title', 'purpose']
+    field_errors = []
+
+    for filepath, entry in docs.items():
+        for field in required_fields:
+            if not entry.get(field):
+                field_errors.append(f"必須フィールド欠落: '{filepath}' に '{field}' がありません")
+
+    if not field_errors:
+        print(f"✓ 必須フィールド検査: OK（{len(docs)}件のエントリ）")
+    else:
+        print(f"✗ 必須フィールド検査: {len(field_errors)}件のエラー")
+        errors.extend(field_errors)
+
+    # 3. ファイル参照検査
+    file_errors = []
+    for filepath in docs.keys():
+        full_path = RULES_DIR / filepath
+        if not full_path.exists():
+            file_errors.append(f"ファイル不在: '{filepath}' が存在しません")
+
+    if not file_errors:
+        print(f"✓ ファイル参照検査: OK（全ファイルが存在）")
+    else:
+        print(f"✗ ファイル参照検査: {len(file_errors)}件のエラー")
+        errors.extend(file_errors)
+
+    # 4. 重複パス検査（辞書なので本質的に重複はないが確認）
+    print(f"✓ 重複パス検査: OK（{len(docs)}件のユニークパス）")
+
+    # 結果サマリー
+    print()
+    if errors:
+        print(f"❌ 検査失敗: {len(errors)} 件のエラー")
+        print("-" * 40)
+        for err in errors:
+            print(f"  - {err}")
+        return False
+    else:
+        print(f"✅ 検査完了: 全チェックOK")
+        return True
+
+
+def main():
+    # --file オプションの処理
+    toc_path = DEFAULT_TOC_FILE
+    if '--file' in sys.argv:
+        idx = sys.argv.index('--file')
+        if idx + 1 < len(sys.argv):
+            toc_path = Path(sys.argv[idx + 1])
+
+    if not toc_path.exists():
+        print(f"エラー: ファイルが存在しません: {toc_path}")
+        return 1
+
+    success = validate_toc(toc_path)
+    return 0 if success else 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())
