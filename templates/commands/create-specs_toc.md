@@ -1,6 +1,10 @@
+---
+description: Generate AI-searchable structured ToC from requirements and design documents ({{SPECS_DIR}})
+---
+
 # Generate AI-searchable structured ToC from requirements and design documents
 
-Orchestrator command to generate/update `{{SPECS_DIR}}specs_toc.yaml`.
+Orchestrator command to generate/update `.claude/doc-advisor/specs/specs_toc.yaml`.
 
 ## Options
 
@@ -21,8 +25,8 @@ Orchestrator command to generate/update `{{SPECS_DIR}}specs_toc.yaml`.
 ## Required Reference Documents [MANDATORY]
 
 Read the following before processing:
-- `skills/toc-docs/specs_toc_format.md` - Format definition (Single Source of Truth)
-- `skills/toc-docs/specs_toc_update_workflow.md` - Detailed workflow
+- `.claude/doc-advisor/docs/specs_toc_format.md` - Format definition (Single Source of Truth)
+- `.claude/doc-advisor/docs/specs_toc_update_workflow.md` - Detailed workflow
 
 ---
 
@@ -59,7 +63,7 @@ Read the following before processing:
 2. If no pending files → Go to Phase 3 (merge)
     ↓
 3. Select up to 5 files and launch subagents in parallel
-    Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/{ID}.yaml")
+    Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{filename}.yaml")
     ↓
 4. Wait for completion
     ↓
@@ -93,13 +97,15 @@ Read the following before processing:
 
 ## Pending YAML Template Generation
 
-Generate `.toc_work/{ID}.yaml` for each target file.
+Generate `.toc_work/{filename}.yaml` for each target file.
 
-1. Extract ID from file path (e.g., `SCR-001_xxx.md` → `SCR-001`)
-2. Determine doc_type from path (`requirements/` → `spec`, `design/` → `design`)
+1. Convert file path to work filename (e.g., `{{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/login.md` → `{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_login.yaml`)
+2. Determine doc_type from path (`{{REQUIREMENT_DIR_NAME}}/` → `requirement`, `{{DESIGN_DIR_NAME}}/` → `design`)
 3. Generate template and save with Write
 
-**Template format**: See "Intermediate File Schema" section in `skills/toc-docs/specs_toc_format.md`
+**Filename conversion rule**: `/` → `_`, `.md` → `.yaml`
+
+**Template format**: See "Intermediate File Schema" section in `.claude/doc-advisor/docs/specs_toc_format.md`
 
 ---
 
@@ -107,7 +113,7 @@ Generate `.toc_work/{ID}.yaml` for each target file.
 
 | Condition | Action |
 |-----------|--------|
-| `--full` + `.toc_work/` exists | Bash: `rm -rf {{SPECS_DIR}}.toc_work` → Start full mode |
+| `--full` + `.toc_work/` exists | Bash: `rm -rf .claude/doc-advisor/specs/.toc_work` → Start full mode |
 | `.toc_work/` exists + pending remain | Resume from pending (to Phase 2) |
 | `.toc_work/` exists + all completed | Go directly to merge phase (Phase 3) |
 
@@ -118,7 +124,7 @@ Generate `.toc_work/{ID}.yaml` for each target file.
 ### Step 1: Check Checksum File
 
 ```bash
-test -f {{SPECS_DIR}}.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
+test -f .claude/doc-advisor/specs/.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
 ```
 
 - If not exists → Fallback to full mode
@@ -126,16 +132,16 @@ test -f {{SPECS_DIR}}.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
 ### Step 2: Get Current File List and Hashes
 
 ```bash
-# Target file list (requirements/ and design/ subdirectories only)
-find {{SPECS_DIR}} \( -path "*/requirements/*.md" -o -path "*/design/*.md" \) | grep -v ".toc_work" | grep -v "reference" | grep -v "/info/" | sort
+# Target file list ({{REQUIREMENT_DIR_NAME}}/ and {{DESIGN_DIR_NAME}}/ subdirectories only)
+find {{SPECS_DIR}} \( -path "*/{{REQUIREMENT_DIR_NAME}}/*.md" -o -path "*/{{DESIGN_DIR_NAME}}/*.md" \) | grep -v ".toc_work" | grep -v "reference" | grep -v "/info/" | sort
 
 # Calculate hash for each file
-shasum -a 256 {{SPECS_DIR}}main/requirements/APP-001_xxx.md | cut -d' ' -f1
+shasum -a 256 {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/app_overview.md | cut -d' ' -f1
 ```
 
 ### Step 3: Compare Checksums
 
-1. Read `{{SPECS_DIR}}.toc_checksums.yaml`
+1. Read `.claude/doc-advisor/specs/.toc_checksums.yaml`
 2. For each file:
    - **New**: Not in checksums → Generate pending YAML
    - **Changed**: Hash mismatch → Generate pending YAML
@@ -177,11 +183,11 @@ End processing (no need to create .toc_work/)
 
 ```
 # Launch 5 in parallel
-Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/SCR-001.yaml")
-Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/SCR-002.yaml")
-Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/DES-001.yaml")
-Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/APP-001.yaml")
-Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_work/BL-001.yaml")
+Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_login.yaml")
+Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_user_profile.yaml")
+Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{DESIGN_DIR_NAME}}_login_screen.yaml")
+Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{DESIGN_DIR_NAME}}_api_design.yaml")
+Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_auth_{{REQUIREMENT_DIR_NAME}}_oauth.yaml")
 ```
 
 ---
@@ -192,45 +198,45 @@ Task(subagent_type: specs-toc-updater, prompt: "entry_file: {{SPECS_DIR}}.toc_wo
 
 ```bash
 # 1. Merge
-python3 skills/merge-specs-toc/merge_specs_toc.py --mode full --cleanup
+python3 .claude/skills/merge-specs-toc/merge_specs_toc.py --mode full --cleanup
 
 # 2. Validate (check return value)
-python3 skills/merge-specs-toc/validate_specs_toc.py
+python3 .claude/skills/merge-specs-toc/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target specs
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target specs
 ```
 
 ### Incremental Mode
 
 ```bash
 # 1. Merge
-python3 skills/merge-specs-toc/merge_specs_toc.py --mode incremental --cleanup
+python3 .claude/skills/merge-specs-toc/merge_specs_toc.py --mode incremental --cleanup
 
 # 2. Validate (check return value)
-python3 skills/merge-specs-toc/validate_specs_toc.py
+python3 .claude/skills/merge-specs-toc/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target specs
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target specs
 ```
 
 ### Delete-only Mode (N=0 and M>0)
 
 ```bash
 # 1. Delete only (no .toc_work/ needed)
-python3 skills/merge-specs-toc/merge_specs_toc.py --delete-only
+python3 .claude/skills/merge-specs-toc/merge_specs_toc.py --delete-only
 
 # 2. Validate (check return value)
-python3 skills/merge-specs-toc/validate_specs_toc.py
+python3 .claude/skills/merge-specs-toc/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target specs
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target specs
 ```
 
 ---
@@ -255,7 +261,7 @@ When subagent fails, **immediately change to error status without retry**:
 # Example of error status YAML
 _meta:
   status: error
-  source_file: main/requirements/screens/SCR-001_xxx.md
+  source_file: {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/screens/login_screen.md
   error_message: "Subagent processing failed: File read error"
 ```
 

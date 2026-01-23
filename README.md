@@ -1,76 +1,102 @@
-# Doc Advisor - Claude Code Plugin
+# Doc Advisor (v3.0)
 
 AI-powered documentation management with auto-indexed Table of Contents (ToC) generation.
 
 ## Overview
 
-Doc Advisor is a Claude Code plugin that automatically indexes your project documentation, enabling AI agents to quickly identify relevant documents for any task.
+Doc Advisor helps you manage project documentation by automatically indexing documents and enabling AI agents to quickly identify relevant files for any task.
 
 ### Key Features
 
 - **Automatic ToC Generation**: Analyzes document content and generates searchable structured indexes
-- **Incremental Updates**: Processes only changed files using hash-based change detection
+- **Incremental Updates**: Processes only changed files using SHA-256 hash-based change detection
 - **Parallel Processing**: Up to 5 concurrent subagents for faster document processing
 - **Interruption Recovery**: Preserves completed work and supports resumption
+- **Project-Based Setup**: All files are copied to your project, no plugin mode required
+
+## Document Model
+
+Doc Advisor manages two categories of documents: **rule** and **spec**.
+
+### rule - Development Documentation
+
+| doc_type | Directory | Structure | Dir Configurable |
+|----------|-----------|-----------|------------------|
+| `rule` | `rules/` | Free-form (any subdirectory) | Yes |
+
+Flexible structure for development-related documentation. Any `.md` file in any subdirectory is indexed.
+
+| Content Type | Examples |
+|--------------|----------|
+| Architecture rules | `rules/core/architecture.md` |
+| Coding standards | `rules/coding/naming_convention.md` |
+| Workflow guides | `rules/workflow/review_process.md` |
+
+### spec - Project Specifications
+
+| doc_type | Directory | Purpose | Dir Configurable |
+|----------|-----------|---------|------------------|
+| `requirement` | `specs/**/requirements/` | Functional requirements, use cases | Yes |
+| `design` | `specs/**/design/` | Technical design, architecture decisions | Yes |
+| `plan` | `specs/**/plan/` | Project plans, milestones, schedules | Yes |
+
+Structured documentation organized by **feature**. The path between `specs/` and the doc_type directory defines the feature name.
+
+| Path | Feature | doc_type |
+|------|---------|----------|
+| `specs/requirements/login.md` | *(none)* | requirement |
+| `specs/main/requirements/login.md` | `main` | requirement |
+| `specs/auth/oauth/design/flow.md` | `auth/oauth` | design |
+| `specs/v2/billing/plan/roadmap.md` | `v2/billing` | plan |
+
+**Pattern**: `specs/[{feature}/]{doc_type_dir}/**/*.md`
 
 ## Installation
 
-### From Marketplace (Recommended)
-
-```
-/plugin install doc-advisor
-```
-
-### From GitHub
-
-```
-/plugin install github:BlueEventHorizon/DocAdvisor-CCPlugin
-```
-
-### From Local Path
-
-```
-/plugin install /path/to/DocAdvisor-CCPlugin/plugin
-```
-
-## Setup
-
-After installation, run the setup script to configure the plugin for your project's document directories.
-
-### 1. Navigate to Plugin Directory
+### 1. Clone the repository
 
 ```bash
-cd ~/.claude/plugins/doc-advisor  # Adjust path based on installation location
+git clone https://github.com/BlueEventHorizon/DocAdvisor-CCPlugin.git
 ```
 
-### 2. Run Setup Script
+### 2. Setup target project
+
+Run `setup.sh` with your target project path:
 
 ```bash
-# Default settings (rules/, specs/)
-./setup.sh
-
-# Custom directories
-./setup.sh --rules-dir docs/rules/ --specs-dir docs/specs/
-
-# Show help
-./setup.sh --help
+cd DocAdvisor-CCPlugin
+./setup.sh /path/to/your-project
 ```
 
-### Setup Options
+This copies all necessary files to your project:
+```
+your-project/.claude/
+├── commands/          # Command files
+├── agents/            # Agent definitions
+├── skills/            # Skill modules
+└── doc-advisor/
+    └── config.yaml    # Project configuration
+```
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--rules-dir <path>` | Development documentation directory | `rules/` |
-| `--specs-dir <path>` | Requirements/design documents directory | `specs/` |
+Setup will interactively ask for:
+- Rules directory (default: `rules/`)
+- Specs directory (default: `specs/`)
 
-### 3. Initial ToC Generation
+### 3. Launch Claude Code
 
 ```bash
-# Generate ToC for development documentation
-/doc-advisor:create-rules_toc --full
+cd /path/to/your-project
+claude
+```
 
-# Generate ToC for requirements/design documents
-/doc-advisor:create-specs_toc --full
+No `--plugin-dir` flag needed! All files are already in your project.
+
+### Using Makefile (Alternative)
+
+```bash
+cd DocAdvisor-CCPlugin
+make setup                            # Interactive mode
+make setup TARGET=/path/to/your-project  # Specify target
 ```
 
 ## Usage
@@ -79,12 +105,12 @@ cd ~/.claude/plugins/doc-advisor  # Adjust path based on installation location
 
 ```bash
 # Development documentation (rules/)
-/doc-advisor:create-rules_toc          # Incremental update (changed files only)
-/doc-advisor:create-rules_toc --full   # Full rebuild
+/create-rules_toc          # Incremental update (changed files only)
+/create-rules_toc --full   # Full rebuild
 
 # Requirements/design documents (specs/)
-/doc-advisor:create-specs_toc          # Incremental update
-/doc-advisor:create-specs_toc --full   # Full rebuild
+/create-specs_toc          # Incremental update
+/create-specs_toc --full   # Full rebuild
 ```
 
 ### Advisor Agents
@@ -92,103 +118,175 @@ cd ~/.claude/plugins/doc-advisor  # Adjust path based on installation location
 Automatically identify documents needed for a task:
 
 ```
-# Use with Task tool
-Task(subagent_type: rules-advisor, prompt: "Identify documents needed for implementing user authentication")
+Task(subagent_type: rules-advisor, prompt: "Identify documents for implementing user authentication")
 Task(subagent_type: specs-advisor, prompt: "Find requirements for screen navigation")
 ```
 
-### ID Generation (For New Documents)
+## Architecture
 
-```bash
-# Get next sequential ID
-skills/next-doc-id/scan_ids.sh SCR   # → SCR-016
-skills/next-doc-id/scan_ids.sh DES   # → DES-042
+### Configuration File
+
+The scripts use the following configuration file:
+
+- `.claude/doc-advisor/config.yaml`
+
+### ToC Generation Flow
+
+```
+/create-*_toc
+        |
+        v
++-------------------------------------+
+| 1. Detect changes (SHA-256 hash)    |
+|    Compare checksums -> changed only |
++------------------+------------------+
+                   |
+                   v
++-------------------------------------+
+| 2. Parallel processing (max 5)      |
+|    *-toc-updater agents             |
+|    Each agent: read .md -> write YAML|
++------------------+------------------+
+                   |
+                   v
++-------------------------------------+
+| 3. Merge & Validate -> *_toc.yaml   |
++-------------------------------------+
+```
+
+### Advisor Flow
+
+```
+Task(subagent_type: *-advisor)
+        |
+        v
++-------------------+     +-------------------+
+| Read *_toc.yaml   |---->| Find relevant     |----> Return file paths
+|                   |     | documents         |
++-------------------+     +-------------------+
 ```
 
 ## Directory Structure
 
+### Template Repository
+
 ```
-plugin/
-├── .claude-plugin/
-│   └── plugin.json          # Plugin metadata
-├── setup.sh                 # Setup script
-├── templates/               # Templates with placeholders
-│   ├── agents/
-│   ├── commands/
-│   └── skills/toc-common/
-├── commands/                # Slash commands (generated by setup.sh)
-├── agents/                  # Specialized agents (generated by setup.sh)
-├── skills/                  # Utilities
-│   ├── toc-common/          # Shared config and functions
-│   ├── toc-docs/            # Format definitions
-│   ├── merge-rules-toc/     # Rules merge processing
-│   ├── merge-specs-toc/     # Specs merge processing
-│   ├── create-toc-checksums/# Checksum generation
-│   └── next-doc-id/         # ID generation
+DocAdvisor-CCPlugin/
+├── templates/
+│   ├── commands/               # Command templates
+│   │   ├── create-rules_toc.md
+│   │   └── create-specs_toc.md
+│   ├── agents/                 # Agent templates
+│   │   ├── rules-advisor.md
+│   │   ├── specs-advisor.md
+│   │   ├── rules-toc-updater.md
+│   │   └── specs-toc-updater.md
+│   ├── skills/                 # Skill templates
+│   │   ├── toc-common/
+│   │   ├── merge-rules-toc/
+│   │   ├── merge-specs-toc/
+│   │   └── create-toc-checksums/
+│   └── doc-advisor/
+│       └── docs/               # ToC format/workflow documentation
+├── setup.sh                    # Project setup script
+├── Makefile                    # Build automation
 └── README.md
 ```
 
-## Target Directories
-
-### rules/ - Development Documentation
+### Target Project Structure (after setup)
 
 ```
-rules/
-├── core/           # Architecture, coding standards
-├── layer/          # Layer-specific rules
-├── workflow/       # Workflow definitions
-└── rules_toc.yaml  # Generated ToC
+your-project/
+├── .claude/
+│   ├── commands/
+│   │   ├── create-rules_toc.md
+│   │   └── create-specs_toc.md
+│   ├── agents/
+│   │   ├── rules-advisor.md
+│   │   ├── specs-advisor.md
+│   │   ├── rules-toc-updater.md
+│   │   └── specs-toc-updater.md
+│   ├── skills/
+│   │   ├── toc-common/
+│   │   ├── merge-rules-toc/
+│   │   ├── merge-specs-toc/
+│   │   └── create-toc-checksums/
+│   └── doc-advisor/
+│       ├── config.yaml
+│       └── docs/               # ToC format/workflow documentation
+├── rules/                      # Rules documentation (configurable)
+│   ├── rules_toc.yaml          # Generated ToC index
+│   └── *.md                    # Documentation files
+└── specs/                      # Specs documentation (configurable)
+    ├── specs_toc.yaml          # Generated ToC index
+    ├── requirements/           # Requirement documents
+    └── design/                 # Design documents
 ```
-
-### specs/ - Requirements & Design Documents
-
-```
-specs/
-├── {feature}/
-│   ├── requirements/  # Requirements (APP-, SCR-, BL-, etc.)
-│   └── design/        # Design documents (DES-)
-└── specs_toc.yaml     # Generated ToC
-```
-
-## ID Prefixes
-
-| Prefix | Category |
-|--------|----------|
-| APP- | Application requirements |
-| SCR- | Screen requirements |
-| CMP- | UI components |
-| FNC- | Functional requirements |
-| BL- | Business logic |
-| NF- | Non-functional requirements |
-| DM- | Data models |
-| EXT- | External integrations |
-| NAV- | Navigation |
-| THEME- | Themes |
-| DES- | Design documents |
 
 ## Configuration
 
-Customize settings in `skills/toc-common/config.yaml` (generated by setup.sh):
+### Project Configuration
+
+Located at `.claude/doc-advisor/config.yaml`:
 
 ```yaml
+# === rules configuration ===
 rules:
-  root_dir: rules/
+  root_dir: rules
+  toc_file: rules_toc.yaml
+  checksums_file: .toc_checksums.yaml
+  work_dir: .toc_work/
+
   patterns:
     target_glob: "**/*.md"
     exclude:
       - ".toc_work"
       - "rules_toc.yaml"
+      - "reference"
 
+  output:
+    header_comment: "Development documentation search index for rules-advisor subagent"
+    metadata_name: "Development Documentation Search Index"
+
+# === specs configuration ===
 specs:
-  root_dir: specs/
+  root_dir: specs
+  toc_file: specs_toc.yaml
+  checksums_file: .toc_checksums.yaml
+  work_dir: .toc_work/
+
   patterns:
     target_dirs:
-      - requirements
-      - design
+      requirement: requirements    # doc_type: directory_name
+      design: design
+    exclude:
+      - ".toc_work"
+      - ".toc_checksums.yaml"
+      - "specs_toc.yaml"
+      - "reference"
+      - "/info/"
 
+  output:
+    header_comment: "Requirements and design document search index for specs-advisor subagent"
+    metadata_name: "Requirements and Design Document Search Index"
+
+# === common configuration ===
 common:
   parallel:
     max_workers: 5
+    fallback_to_serial: true
+```
+
+### Customizing Configuration
+
+Edit the project config file directly, or re-run setup:
+
+```bash
+# Re-run setup interactively
+./setup.sh /path/to/your-project
+
+# Or edit directly
+nano /path/to/your-project/.claude/doc-advisor/config.yaml
 ```
 
 ## Processing Modes
@@ -201,8 +299,40 @@ common:
 
 ## Requirements
 
-- Python 3 (standard library only, no pip dependencies)
-- Claude Code 1.0.0 or higher
+- Python 3 (standard library only)
+- Claude Code
+- Bash shell
+
+## Troubleshooting
+
+### Config not found error
+
+Ensure you've run setup for your project:
+```bash
+./setup.sh /path/to/your-project
+```
+
+### Commands not recognized
+
+Verify the files exist:
+```bash
+ls -la /path/to/your-project/.claude/commands/
+ls -la /path/to/your-project/.claude/agents/
+```
+
+### ToC generation fails
+
+1. Check if target directories exist in your project
+2. Verify config paths are correct
+3. Look for `.toc_work/` directory for recovery
+
+## Migration from v2.0 (Plugin Mode)
+
+If you were using the plugin mode (`--plugin-dir`), follow these steps:
+
+1. Run setup.sh on your project to install the new files
+2. Remove the `--plugin-dir` flag when starting Claude Code
+3. Your existing `config.yaml` in `.claude/doc-advisor/` will be preserved
 
 ## License
 

@@ -1,6 +1,10 @@
+---
+description: Generate AI-searchable structured ToC from development documents ({{RULES_DIR}})
+---
+
 # Generate AI-searchable structured ToC from development documents
 
-Orchestrator command to generate/update `{{RULES_DIR}}rules_toc.yaml`.
+Orchestrator command to generate/update `.claude/doc-advisor/rules/rules_toc.yaml`.
 
 ## Options
 
@@ -21,8 +25,8 @@ Orchestrator command to generate/update `{{RULES_DIR}}rules_toc.yaml`.
 ## Required Reference Documents [MANDATORY]
 
 Read the following before processing:
-- `skills/toc-docs/rules_toc_format.md` - Format definition and intermediate file schema
-- `skills/toc-docs/rules_toc_update_workflow.md` - Detailed workflow
+- `.claude/doc-advisor/docs/rules_toc_format.md` - Format definition and intermediate file schema
+- `.claude/doc-advisor/docs/rules_toc_update_workflow.md` - Detailed workflow
 
 ---
 
@@ -59,7 +63,7 @@ Read the following before processing:
 2. If no pending files → Go to Phase 3 (merge)
     ↓
 3. Select up to 5 files and launch subagents in parallel
-    Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/{filename}.yaml")
+    Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{filename}.yaml")
     ↓
 4. Wait for completion
     ↓
@@ -95,10 +99,10 @@ Read the following before processing:
 
 Generate `.toc_work/{filename}.yaml` for each target file.
 
-1. Extract filename from path (e.g., `core/architecture_rule.md` → `core_architecture_rule`)
+1. Extract filename from path (e.g., `{{RULES_DIR}}/core/architecture_rule.md` → `{{RULES_DIR}}_core_architecture_rule`)
 2. Generate template and save with Write
 
-**Template format**: See "Intermediate File Schema" section in `skills/toc-docs/rules_toc_format.md`
+**Template format**: See "Intermediate File Schema" section in `.claude/doc-advisor/docs/rules_toc_format.md`
 
 ---
 
@@ -106,7 +110,7 @@ Generate `.toc_work/{filename}.yaml` for each target file.
 
 | Condition | Action |
 |-----------|--------|
-| `--full` + `.toc_work/` exists | Bash: `rm -rf {{RULES_DIR}}.toc_work` → Start full mode |
+| `--full` + `.toc_work/` exists | Bash: `rm -rf .claude/doc-advisor/rules/.toc_work` → Start full mode |
 | `.toc_work/` exists + pending remain | Resume from pending (to Phase 2) |
 | `.toc_work/` exists + all completed | Go directly to merge phase (Phase 3) |
 
@@ -117,7 +121,7 @@ Generate `.toc_work/{filename}.yaml` for each target file.
 ### Step 1: Check Checksum File
 
 ```bash
-test -f {{RULES_DIR}}.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
+test -f .claude/doc-advisor/rules/.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
 ```
 
 - If not exists → Fallback to full mode
@@ -129,12 +133,12 @@ test -f {{RULES_DIR}}.toc_checksums.yaml && echo "EXISTS" || echo "NOT_EXISTS"
 find {{RULES_DIR}} -name "*.md" -type f | grep -v ".toc_work" | grep -v "rules_toc.yaml" | grep -v "reference" | sort
 
 # Calculate hash for each file
-shasum -a 256 {{RULES_DIR}}core/architecture_rule.md | cut -d' ' -f1
+shasum -a 256 {{RULES_DIR}}/core/architecture_rule.md | cut -d' ' -f1
 ```
 
 ### Step 3: Compare Checksums
 
-1. Read `{{RULES_DIR}}.toc_checksums.yaml`
+1. Read `.claude/doc-advisor/rules/.toc_checksums.yaml`
 2. For each file:
    - **New**: Not in checksums → Generate pending YAML
    - **Changed**: Hash mismatch → Generate pending YAML
@@ -176,11 +180,11 @@ End processing (no need to create .toc_work/)
 
 ```
 # Launch 5 in parallel
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/core_architecture_rule.yaml")
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/core_coding_rule.yaml")
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/layer_ui_rule.yaml")
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/workflow_dev_task.yaml")
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_work/format_spec.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_core_coding_rule.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_layer_ui_rule.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_workflow_dev_task.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_format_spec.yaml")
 ```
 
 ---
@@ -191,45 +195,45 @@ Task(subagent_type: rules-toc-updater, prompt: "entry_file: {{RULES_DIR}}.toc_wo
 
 ```bash
 # 1. Merge
-python3 skills/merge-rules-toc/merge_rules_toc.py --mode full --cleanup
+python3 .claude/skills/merge-rules-toc/merge_rules_toc.py --mode full --cleanup
 
 # 2. Validate (check return value)
-python3 skills/merge-rules-toc/validate_rules_toc.py
+python3 .claude/skills/merge-rules-toc/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target rules
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target rules
 ```
 
 ### Incremental Mode
 
 ```bash
 # 1. Merge
-python3 skills/merge-rules-toc/merge_rules_toc.py --mode incremental --cleanup
+python3 .claude/skills/merge-rules-toc/merge_rules_toc.py --mode incremental --cleanup
 
 # 2. Validate (check return value)
-python3 skills/merge-rules-toc/validate_rules_toc.py
+python3 .claude/skills/merge-rules-toc/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target rules
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target rules
 ```
 
 ### Delete-only Mode (N=0 and M>0)
 
 ```bash
 # 1. Delete only (no .toc_work/ needed)
-python3 skills/merge-rules-toc/merge_rules_toc.py --delete-only
+python3 .claude/skills/merge-rules-toc/merge_rules_toc.py --delete-only
 
 # 2. Validate (check return value)
-python3 skills/merge-rules-toc/validate_rules_toc.py
+python3 .claude/skills/merge-rules-toc/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 skills/create-toc-checksums/create_checksums.py --target rules
+python3 .claude/skills/create-toc-checksums/create_checksums.py --target rules
 ```
 
 ---
@@ -254,7 +258,7 @@ When subagent fails, **immediately change to error status without retry**:
 # Example of error status YAML
 _meta:
   status: error
-  source_file: core/architecture_rule.md
+  source_file: {{RULES_DIR}}/core/architecture_rule.md
   error_message: "Subagent processing failed: File read error"
 ```
 
