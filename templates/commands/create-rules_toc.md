@@ -48,11 +48,14 @@ Read the following before processing:
     ↓
 3. Create .toc_work/ directory
     ↓
-4. Identify target files
-    - full: Get all files with Glob
-    - incremental: Detect changed files with hash method
-    ↓
-5. Generate pending YAML templates
+4. Identify target files and generate pending YAML templates
+    ```bash
+    # Full mode
+    python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+
+    # Incremental mode
+    python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+    ```
 ```
 
 ### Phase 2: Parallel Processing
@@ -97,10 +100,20 @@ Read the following before processing:
 
 ## Pending YAML Template Generation
 
-Generate `.claude/doc-advisor/rules/.toc_work/{filename}.yaml` for each target file.
+Use the script to generate `.claude/doc-advisor/rules/.toc_work/{filename}.yaml` for each target file.
 
-1. Extract filename from path (e.g., `{{RULES_DIR}}/core/architecture_rule.md` → `{{RULES_DIR}}_core_architecture_rule`)
-2. Generate template and save with Write
+```bash
+# Full mode (all files)
+python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+
+# Incremental mode (changed files only)
+python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+```
+
+The script handles:
+1. File discovery and change detection (SHA-256 hash comparison)
+2. Filename conversion (e.g., `{{RULES_DIR}}/core/architecture_rule.md` → `{{RULES_DIR}}_core_architecture_rule.yaml`)
+3. Template generation with pending status
 
 **Template format**: See "Intermediate File Schema" section in `.claude/doc-advisor/docs/rules_toc_format.md`
 
@@ -269,6 +282,16 @@ _meta:
 - Don't delete `.toc_work/`
 - Report error content
 - Can recover by re-running
+
+### On Unexpected Error
+
+**Do NOT attempt automatic recovery or workarounds.**
+
+When encountering unexpected errors (e.g., sandbox restrictions, permission errors, environment issues):
+
+1. Report the error details clearly
+2. Ask the user how to proceed
+3. Wait for user instructions before taking any action
 
 ---
 

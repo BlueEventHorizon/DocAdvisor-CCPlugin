@@ -24,6 +24,8 @@ This skill consolidates all ToC-related functionality:
 | `create_checksums.py` | Checksum file generation |
 | `create_pending_yaml_rules.py` | Phase 1: Generate pending YAML templates for rules |
 | `create_pending_yaml_specs.py` | Phase 1: Generate pending YAML templates for specs |
+| `write_rules_pending.py` | Phase 2: Write completed entry to pending YAML for rules |
+| `write_specs_pending.py` | Phase 2: Write completed entry to pending YAML for specs |
 | `merge_rules_toc.py` | Phase 3: Merge processing for rules |
 | `merge_specs_toc.py` | Phase 3: Merge processing for specs |
 | `validate_rules_toc.py` | Phase 3: Validation for rules |
@@ -53,6 +55,18 @@ python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
 python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
 ```
 
+#### Phase 2: Write Completed Entry (called by subagent)
+
+```bash
+python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
+  --entry-file ".claude/doc-advisor/rules/.toc_work/xxx.yaml" \
+  --title "Document Title" \
+  --purpose "Document purpose description" \
+  --content-details "detail1,detail2,detail3,detail4,detail5" \
+  --applicable-tasks "task1,task2" \
+  --keywords "kw1,kw2,kw3,kw4,kw5"
+```
+
 #### Phase 3: Merge & Validation
 
 ```bash
@@ -79,6 +93,18 @@ python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
 
 # Incremental mode (changed files only)
 python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
+```
+
+#### Phase 2: Write Completed Entry (called by subagent)
+
+```bash
+python3 .claude/skills/doc-advisor/scripts/write_specs_pending.py \
+  --entry-file ".claude/doc-advisor/specs/.toc_work/xxx.yaml" \
+  --title "Document Title" \
+  --purpose "Document purpose description" \
+  --content-details "detail1,detail2,detail3,detail4,detail5" \
+  --applicable-tasks "task1,task2" \
+  --keywords "kw1,kw2,kw3,kw4,kw5"
 ```
 
 #### Phase 3: Merge & Validation
