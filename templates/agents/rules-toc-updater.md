@@ -31,7 +31,7 @@ Read the following before processing:
 4. Call the write script to save the completed entry:
 
 ```bash
-python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/write_rules_pending.py \
   --entry-file "{entry_file}" \
   --title "{extracted title}" \
   --purpose "{extracted purpose}" \

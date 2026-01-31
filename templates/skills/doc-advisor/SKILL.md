@@ -37,10 +37,10 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # For rules
-python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
 
 # For specs
-python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 ```
 
 ### rules_toc.yaml Generation
@@ -49,16 +49,16 @@ python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 
 ```bash
 # Full mode (all files)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
 
 # Incremental mode (changed files only)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
 ```
 
 #### Phase 2: Write Completed Entry (called by subagent)
 
 ```bash
-python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/write_rules_pending.py \
   --entry-file ".claude/doc-advisor/rules/.toc_work/xxx.yaml" \
   --title "Document Title" \
   --purpose "Document purpose description" \
@@ -71,16 +71,16 @@ python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
 
 ```bash
 # Full mode (new generation)
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 
 # Incremental mode (differential merge)
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 
 # Delete-only mode (deletions only, no .claude/doc-advisor/rules/.toc_work/ needed)
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 ```
 
 ### specs_toc.yaml Generation
@@ -89,16 +89,16 @@ python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 
 ```bash
 # Full mode (all files)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
 
 # Incremental mode (changed files only)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
 ```
 
 #### Phase 2: Write Completed Entry (called by subagent)
 
 ```bash
-python3 .claude/skills/doc-advisor/scripts/write_specs_pending.py \
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/write_specs_pending.py \
   --entry-file ".claude/doc-advisor/specs/.toc_work/xxx.yaml" \
   --title "Document Title" \
   --purpose "Document purpose description" \
@@ -111,16 +111,16 @@ python3 .claude/skills/doc-advisor/scripts/write_specs_pending.py \
 
 ```bash
 # Full mode (new generation)
-python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
-python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 
 # Incremental mode (differential merge)
-python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
-python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 
 # Delete-only mode (deletions only, no .claude/doc-advisor/specs/.toc_work/ needed)
-python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
-python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 ```
 
 ## Options

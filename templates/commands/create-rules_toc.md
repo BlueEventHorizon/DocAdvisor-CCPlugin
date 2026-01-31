@@ -51,10 +51,10 @@ Read the following before processing:
 4. Identify target files and generate pending YAML templates
     ```bash
     # Full mode
-    python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+    {{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
 
     # Incremental mode
-    python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+    {{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
     ```
 ```
 
@@ -104,10 +104,10 @@ Use the script to generate `.claude/doc-advisor/rules/.toc_work/{filename}.yaml`
 
 ```bash
 # Full mode (all files)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
 
 # Incremental mode (changed files only)
-python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
 ```
 
 The script handles:
@@ -208,45 +208,45 @@ Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/
 
 ```bash
 # 1. Merge
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
 
 # 2. Validate (check return value)
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
 ```
 
 ### Incremental Mode
 
 ```bash
 # 1. Merge
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
 
 # 2. Validate (check return value)
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
 ```
 
 ### Delete-only Mode (N=0 and M>0)
 
 ```bash
 # 1. Delete only (no .claude/doc-advisor/rules/.toc_work/ needed)
-python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
 
 # 2. Validate (check return value)
-python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
+{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
 ```
 
 ---
