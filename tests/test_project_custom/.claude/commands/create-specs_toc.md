@@ -51,10 +51,10 @@ Read the following before processing:
 4. Identify target files and generate pending YAML templates
     ```bash
     # Full mode
-    /Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
+    $HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
 
     # Incremental mode
-    /Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
+    $HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
     ```
 ```
 
@@ -104,10 +104,10 @@ Use the script to generate `.claude/doc-advisor/specs/.toc_work/{filename}.yaml`
 
 ```bash
 # Full mode (all files)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
 
 # Incremental mode (changed files only)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
 ```
 
 The script handles:
@@ -209,45 +209,45 @@ Task(subagent_type: specs-toc-updater, prompt: "entry_file: .claude/doc-advisor/
 
 ```bash
 # 1. Merge
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
 
 # 2. Validate (check return value)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 ```
 
 ### Incremental Mode
 
 ```bash
 # 1. Merge
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
 
 # 2. Validate (check return value)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 ```
 
 ### Delete-only Mode (N=0 and M>0)
 
 ```bash
 # 1. Delete only (no .claude/doc-advisor/specs/.toc_work/ needed)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
 
 # 2. Validate (check return value)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 # → exit 0: Validation success, proceed
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 ```
 
 ---

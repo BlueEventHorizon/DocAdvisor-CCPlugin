@@ -37,10 +37,10 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # For rules
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target rules
 
 # For specs
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_checksums.py --target specs
 ```
 
 ### rules_toc.yaml Generation
@@ -49,16 +49,16 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # Full mode (all files)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full
 
 # Incremental mode (changed files only)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py
 ```
 
 #### Phase 2: Write Completed Entry (called by subagent)
 
 ```bash
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/write_rules_pending.py \
   --entry-file ".claude/doc-advisor/rules/.toc_work/xxx.yaml" \
   --title "Document Title" \
   --purpose "Document purpose description" \
@@ -71,16 +71,16 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # Full mode (new generation)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 
 # Incremental mode (differential merge)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 
 # Delete-only mode (deletions only, no .claude/doc-advisor/rules/.toc_work/ needed)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_rules_toc.py --delete-only
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_rules_toc.py
 ```
 
 ### specs_toc.yaml Generation
@@ -89,16 +89,16 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # Full mode (all files)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full
 
 # Incremental mode (changed files only)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py
 ```
 
 #### Phase 2: Write Completed Entry (called by subagent)
 
 ```bash
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/write_specs_pending.py \
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/write_specs_pending.py \
   --entry-file ".claude/doc-advisor/specs/.toc_work/xxx.yaml" \
   --title "Document Title" \
   --purpose "Document purpose description" \
@@ -111,16 +111,16 @@ This skill consolidates all ToC-related functionality:
 
 ```bash
 # Full mode (new generation)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode full --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 
 # Incremental mode (differential merge)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental --cleanup
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 
 # Delete-only mode (deletions only, no .claude/doc-advisor/specs/.toc_work/ needed)
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
-/Users/moons/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/merge_specs_toc.py --delete-only
+$HOME/.pyenv/shims/python3 .claude/skills/doc-advisor/scripts/validate_specs_toc.py
 ```
 
 ## Options

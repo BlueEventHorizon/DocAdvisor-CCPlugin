@@ -58,7 +58,7 @@ echo "=================================================="
 echo ""
 
 # Check PYTHON_PATH substitution
-PYTHON_PATH_IN_FILE=$(grep -o '/[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "NOT_FOUND")
+PYTHON_PATH_IN_FILE=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "NOT_FOUND")
 
 if [[ "$PYTHON_PATH_IN_FILE" == "NOT_FOUND" ]] || [[ "$PYTHON_PATH_IN_FILE" == *"{{"* ]]; then
     echo -e "${RED}FAIL: PYTHON_PATH not substituted${NC}"
@@ -85,7 +85,8 @@ echo "=================================================="
 echo ""
 
 # Get Python path from the substituted file
-PYTHON_CMD=$(grep -o '/[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 
 echo "Using Python: $PYTHON_CMD"
 echo ""
