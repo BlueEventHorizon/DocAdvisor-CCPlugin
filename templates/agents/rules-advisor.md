@@ -1,7 +1,7 @@
 ---
 name: rules-advisor
 description: Agent that identifies development documents ({{RULES_DIR}}) needed for a task
-model: opus
+model: {{AGENT_MODEL}}
 color: orange
 ---
 

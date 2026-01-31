@@ -1,7 +1,7 @@
 ---
 name: rules-advisor
 description: Agent that identifies development documents (guidelines) needed for a task
-model: opus
+model: sonnet
 color: orange
 ---
 

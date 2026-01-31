@@ -1,7 +1,7 @@
 ---
 name: specs-advisor
 description: Agent that identifies requirement and design documents needed for a task
-model: opus
+model: sonnet
 color: cyan
 ---
 

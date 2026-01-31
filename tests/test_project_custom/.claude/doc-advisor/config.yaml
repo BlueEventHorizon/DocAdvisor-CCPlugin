@@ -30,7 +30,7 @@ specs:
       requirement: reqs
       design: arch
     exclude:
-      - plan  # Read in full during work, no search needed
+      - roadmap  # Read in full during work, no search needed
       # - reference
       # - /info/
 

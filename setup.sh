@@ -28,6 +28,8 @@ DEFAULT_SPECS_DIR="specs"
 DEFAULT_REQUIREMENT_DIR_NAME="requirements"
 DEFAULT_DESIGN_DIR_NAME="design"
 DEFAULT_PLAN_DIR_NAME="plan"
+# Agent model (opus, sonnet, haiku, inherit)
+DEFAULT_AGENT_MODEL="opus"
 
 # Load previous settings if available
 if [[ -f "$LAST_SETUP_FILE" ]]; then
@@ -39,6 +41,7 @@ if [[ -f "$LAST_SETUP_FILE" ]]; then
     DEFAULT_REQUIREMENT_DIR_NAME="${LAST_REQUIREMENT_DIR_NAME:-$DEFAULT_REQUIREMENT_DIR_NAME}"
     DEFAULT_DESIGN_DIR_NAME="${LAST_DESIGN_DIR_NAME:-$DEFAULT_DESIGN_DIR_NAME}"
     DEFAULT_PLAN_DIR_NAME="${LAST_PLAN_DIR_NAME:-$DEFAULT_PLAN_DIR_NAME}"
+    DEFAULT_AGENT_MODEL="${LAST_AGENT_MODEL:-$DEFAULT_AGENT_MODEL}"
 fi
 
 # Parse arguments
@@ -133,12 +136,27 @@ REQUIREMENT_DIR_NAME="${REQUIREMENT_DIR_NAME:-$DEFAULT_REQUIREMENT_DIR_NAME}"
 read -p "  Design directory name [${DEFAULT_DESIGN_DIR_NAME}]: " DESIGN_DIR_NAME
 DESIGN_DIR_NAME="${DESIGN_DIR_NAME:-$DEFAULT_DESIGN_DIR_NAME}"
 
+read -p "  Plan directory name [${DEFAULT_PLAN_DIR_NAME}]: " PLAN_DIR_NAME
+PLAN_DIR_NAME="${PLAN_DIR_NAME:-$DEFAULT_PLAN_DIR_NAME}"
+
+echo ""
+echo "Configure agent model (opus, sonnet, haiku, inherit):"
+read -p "  Agent model [${DEFAULT_AGENT_MODEL}]: " AGENT_MODEL
+AGENT_MODEL="${AGENT_MODEL:-$DEFAULT_AGENT_MODEL}"
+
+# Validate agent model
+case "$AGENT_MODEL" in
+    opus|sonnet|haiku|inherit)
+        ;;
+    *)
+        echo -e "${YELLOW}Warning: Unknown model '$AGENT_MODEL'. Using 'opus' as default.${NC}"
+        AGENT_MODEL="opus"
+        ;;
+esac
+
 # Remove trailing slash if present (placeholders should not include trailing slash)
 RULES_DIR="${RULES_DIR%/}"
 SPECS_DIR="${SPECS_DIR%/}"
-
-# Plan directory name (not configurable via prompt)
-PLAN_DIR_NAME="${DEFAULT_PLAN_DIR_NAME}"
 
 # Detect Python path
 # Check if shell wrapper exists (e.g., Claude Code shell-snapshots directory)
@@ -161,6 +179,7 @@ echo -e "  SPECS_DIR: ${BLUE}${SPECS_DIR}${NC}"
 echo -e "  REQUIREMENT_DIR_NAME: ${BLUE}${REQUIREMENT_DIR_NAME}${NC}"
 echo -e "  DESIGN_DIR_NAME: ${BLUE}${DESIGN_DIR_NAME}${NC}"
 echo -e "  PLAN_DIR_NAME: ${BLUE}${PLAN_DIR_NAME}${NC}"
+echo -e "  AGENT_MODEL: ${BLUE}${AGENT_MODEL}${NC}"
 echo -e "  PYTHON_PATH: ${BLUE}${PYTHON_PATH}${NC}"
 if [[ "$PYTHON_WRAPPED" == "yes" ]]; then
     echo -e "    ${RED}(python3 may be wrapped: using explicit path for reliability)${NC}"
@@ -193,6 +212,7 @@ copy_and_substitute() {
             -e "s|{{REQUIREMENT_DIR_NAME}}|${REQUIREMENT_DIR_NAME}|g" \
             -e "s|{{DESIGN_DIR_NAME}}|${DESIGN_DIR_NAME}|g" \
             -e "s|{{PLAN_DIR_NAME}}|${PLAN_DIR_NAME}|g" \
+            -e "s|{{AGENT_MODEL}}|${AGENT_MODEL}|g" \
             -e "s|{{PYTHON_PATH}}|${PYTHON_PATH}|g" \
             "$src" > "$dst"
     fi
@@ -276,6 +296,7 @@ LAST_SPECS_DIR="${SPECS_DIR}"
 LAST_REQUIREMENT_DIR_NAME="${REQUIREMENT_DIR_NAME}"
 LAST_DESIGN_DIR_NAME="${DESIGN_DIR_NAME}"
 LAST_PLAN_DIR_NAME="${PLAN_DIR_NAME}"
+LAST_AGENT_MODEL="${AGENT_MODEL}"
 EOF
 
 echo ""
