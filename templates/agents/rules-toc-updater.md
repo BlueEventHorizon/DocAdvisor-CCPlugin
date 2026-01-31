@@ -1,7 +1,7 @@
 ---
 name: rules-toc-updater
 description: Specialized agent that generates ToC entries for a single rule document. Processes individual YAML files in .claude/doc-advisor/rules/.toc_work/.
-model: opus
+model: {{AGENT_MODEL}}
 color: orange
 tools: Read, Bash
 ---
