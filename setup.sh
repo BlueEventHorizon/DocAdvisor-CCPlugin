@@ -149,7 +149,7 @@ case "$AGENT_MODEL" in
     opus|sonnet|haiku|inherit)
         ;;
     *)
-        echo -e "${YELLOW}Warning: Unknown model '$AGENT_MODEL'. Using 'opus' as default.${NC}"
+        echo -e "${RED}Warning: Unknown model '$AGENT_MODEL'. Using 'opus' as default.${NC}"
         AGENT_MODEL="opus"
         ;;
 esac
@@ -224,7 +224,7 @@ copy_dir_with_substitution() {
     local dst_dir="$2"
 
     if [[ ! -d "$src_dir" ]]; then
-        echo "Warning: Source directory not found: $src_dir"
+        echo -e "${RED}Warning: Source directory not found: ${src_dir}${NC}"
         return
     fi
 
