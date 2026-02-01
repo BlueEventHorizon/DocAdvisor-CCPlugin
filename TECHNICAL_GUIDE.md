@@ -123,6 +123,8 @@ Setup will interactively ask for:
 - Specs directory (default: `specs/`)
 - Requirements subdirectory name (default: `requirements`)
 - Design subdirectory name (default: `design`)
+- Plan subdirectory name (default: `plan`)
+- Agent model (default: `opus`, options: `opus/sonnet/haiku/inherit`)
 
 ### 3. Launch Claude Code
 
@@ -341,6 +343,7 @@ common:
 ```
 
 > **Note**: System files (`.toc_work/`, `*_toc.yaml`, `.toc_checksums.yaml`) are automatically excluded and do not need to be listed in config.
+> **Note**: Exclude patterns are matched against directory paths only (filenames are not matched).
 
 ### Customizing Configuration
 

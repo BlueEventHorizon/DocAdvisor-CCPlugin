@@ -28,6 +28,8 @@ Doc Advisor の目的は「必要な文書を、短時間で、確実に特定�
 - **並列処理**: 最大 5 並列
 - **中断耐性**: 完了分を保持し再開可能
 
+詳細は [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md) を参照してください。
+
 ## 設計の意図（要点）
 
 - **rules / specs の分離**: 開発ドキュメントと仕様書を明確に分け、参照コストを下げる
@@ -108,12 +110,10 @@ Task(subagent_type: specs-advisor, prompt: "画面遷移の要件を特定")
 - 除外パターンはユーザー定義で追加可能
 - システムファイル（`.toc_work/`, `*_toc.yaml`, `.toc_checksums.yaml`）は自動除外
 
-詳細は `TECHNICAL_GUIDE_ja.md` を参照してください。
-
 ## ドキュメント
 
-- 日本語: `TECHNICAL_GUIDE_ja.md`
-- 英語: `TECHNICAL_GUIDE.md`
+- 日本語: [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md)
+- 英語: [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)
 
 ## 非公開仕様について
 

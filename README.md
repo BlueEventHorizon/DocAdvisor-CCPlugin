@@ -30,6 +30,8 @@ Key features:
 - **Parallel processing**: Up to 5 concurrent workers
 - **Interruption recovery**: Preserve completed work and resume
 
+For full details, see [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md).
+
 ## Design Intent (Highlights)
 
 - **rules / specs separation**: Reduce search cost and ambiguity
@@ -110,12 +112,10 @@ Config file: `.claude/doc-advisor/config.yaml`
 - Add user-defined exclude patterns as needed
 - System files (`.toc_work/`, `*_toc.yaml`, `.toc_checksums.yaml`) are always excluded
 
-See `TECHNICAL_GUIDE.md` for details.
-
 ## Documentation
 
-- Japanese: `TECHNICAL_GUIDE_ja.md`
-- English: `TECHNICAL_GUIDE.md`
+- Japanese: [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md)
+- English: [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)
 
 ## Private Specs Notice
 

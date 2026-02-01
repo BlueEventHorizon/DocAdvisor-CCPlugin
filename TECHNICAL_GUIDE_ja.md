@@ -124,6 +124,8 @@ your-project/.claude/
 - Specs ディレクトリ（デフォルト: `specs/`）
 - Requirements サブディレクトリ名（デフォルト: `requirements`）
 - Design サブディレクトリ名（デフォルト: `design`）
+- Plan サブディレクトリ名（デフォルト: `plan`）
+- Agent model（デフォルト: `opus`、`opus/sonnet/haiku/inherit`）
 
 ### 3. Claude Code を起動
 
@@ -342,6 +344,7 @@ common:
 ```
 
 > **注**: システムファイル（`.toc_work/`, `*_toc.yaml`, `.toc_checksums.yaml`）は自動的に除外されるため、設定に記載する必要はありません。
+> **注**: 除外パターンはディレクトリパスに対して判定されます（ファイル名は対象外）。
 
 ### 設定のカスタマイズ
 
