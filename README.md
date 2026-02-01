@@ -117,11 +117,6 @@ Config file: `.claude/doc-advisor/config.yaml`
 - Japanese: [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md)
 - English: [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)
 
-## Private Specs Notice
-
-Some specifications exist only in a private environment. This public README does **not**
-reference their titles or contents because they are not published.
-
 ## Requirements
 
 - Python 3 (standard library only)

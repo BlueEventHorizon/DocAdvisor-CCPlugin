@@ -115,11 +115,6 @@ Task(subagent_type: specs-advisor, prompt: "画面遷移の要件を特定")
 - 日本語: [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md)
 - 英語: [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md)
 
-## 非公開仕様について
-
-非公開の仕様書は別環境に存在します。公開版の README では、
-それらの**タイトルや内容を参照しません**（非公開のため）。
-
 ## 必要要件
 
 - Python 3（標準ライブラリのみ）
