@@ -2,6 +2,7 @@
 name: doc-advisor
 description: Update document search index (ToC) after modifying, creating, or deleting markdown files in rules/ or specs/ directories.
 allowed-tools: Bash, Read, Task
+user-invocable: true
 ---
 
 # doc-advisor
