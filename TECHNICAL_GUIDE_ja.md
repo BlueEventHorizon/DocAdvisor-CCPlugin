@@ -113,8 +113,10 @@ cd DocAdvisor-CC
 your-project/.claude/
 ├── agents/            # エージェント定義
 ├── skills/
-│   └── doc-advisor/
-│       └── SKILL.md   # エントリポイントのみ
+│   ├── create-rules-toc/
+│   │   └── SKILL.md   # rules ToC 生成スキル
+│   └── create-specs-toc/
+│       └── SKILL.md   # specs ToC 生成スキル
 └── doc-advisor/       # すべてのリソースとランタイム出力
     ├── config.yaml
     ├── docs/
@@ -153,12 +155,12 @@ make setup TARGET=/path/to/your-project  # ターゲット指定
 
 ```bash
 # 開発ドキュメント（rules/）の ToC 生成
-/doc-advisor make-rules-toc          # 差分更新（変更ファイルのみ処理）
-/doc-advisor make-rules-toc --full   # 全ファイル再生成
+/create-rules-toc          # 差分更新（変更ファイルのみ処理）
+/create-rules-toc --full   # 全ファイル再生成
 
 # 要件定義書・設計書（specs/）の ToC 生成
-/doc-advisor make-specs-toc          # 差分更新
-/doc-advisor make-specs-toc --full   # 全ファイル再生成
+/create-specs-toc          # 差分更新
+/create-specs-toc --full   # 全ファイル再生成
 ```
 
 ### Advisor エージェント
@@ -205,7 +207,7 @@ Task(subagent_type: specs-advisor, prompt: "画面遷移に関する要件定義
 ### ToC 生成フロー
 
 ```
-/doc-advisor make-*-toc
+/create-*-toc
         |
         v
 +-------------------------------------+
@@ -251,8 +253,10 @@ DocAdvisor-CC/
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
 │   ├── skills/
-│   │   └── doc-advisor/
-│   │       └── SKILL.md        # エントリポイントのみ
+│   │   ├── create-rules-toc/
+│   │   │   └── SKILL.md        # rules ToC 生成スキル
+│   │   └── create-specs-toc/
+│   │       └── SKILL.md        # specs ToC 生成スキル
 │   └── doc-advisor/            # ToC 生成リソース
 │       ├── config.yaml         # 設定テンプレート
 │       ├── docs/               # オーケストレータ、フォーマット、ワークフロー文書
@@ -273,8 +277,10 @@ your-project/
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
 │   ├── skills/
-│   │   └── doc-advisor/
-│   │       └── SKILL.md        # エントリポイントのみ
+│   │   ├── create-rules-toc/
+│   │   │   └── SKILL.md        # rules ToC 生成スキル
+│   │   └── create-specs-toc/
+│   │       └── SKILL.md        # specs ToC 生成スキル
 │   └── doc-advisor/            # すべてのリソースとランタイム出力
 │       ├── config.yaml         # 設定
 │       ├── docs/               # オーケストレータ、フォーマット、ワークフロー文書
@@ -388,7 +394,8 @@ nano /path/to/your-project/.claude/doc-advisor/config.yaml
 
 ファイルが存在するか確認：
 ```bash
-ls -la /path/to/your-project/.claude/skills/doc-advisor/SKILL.md
+ls -la /path/to/your-project/.claude/skills/create-rules-toc/SKILL.md
+ls -la /path/to/your-project/.claude/skills/create-specs-toc/SKILL.md
 ls -la /path/to/your-project/.claude/doc-advisor/
 ls -la /path/to/your-project/.claude/agents/
 ```
@@ -412,10 +419,11 @@ ls -la /path/to/your-project/.claude/agents/
 **自動削除**（doc-advisor のレガシーファイル）:
 - `.claude/commands/create-rules_toc.md`
 - `.claude/commands/create-specs_toc.md`
-- `.claude/skills/doc-advisor/`（クリーンアップ、SKILL.md のみ残る）
+- `.claude/skills/doc-advisor/`（削除、分割されたスキルに置き換え）
 
 **インストール**（新 v3.0 構造）:
-- `.claude/skills/doc-advisor/SKILL.md`（エントリポイント）
+- `.claude/skills/create-rules-toc/SKILL.md`（rules ToC 生成）
+- `.claude/skills/create-specs-toc/SKILL.md`（specs ToC 生成）
 - `.claude/doc-advisor/config.yaml`
 - `.claude/doc-advisor/docs/`
 - `.claude/doc-advisor/scripts/`
@@ -437,8 +445,8 @@ ls -la /path/to/your-project/.claude/agents/
 1. Claude Code 起動時に `--plugin-dir` フラグを削除 - 全ファイルがプロジェクト内にあります。
 2. ToC ファイルを再生成（パスが変更されたため）：
    ```bash
-   /doc-advisor make-rules-toc --full
-   /doc-advisor make-specs-toc --full
+   /create-rules-toc --full
+   /create-specs-toc --full
    ```
 
 ## ライセンス

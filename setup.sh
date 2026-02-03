@@ -59,7 +59,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "This script creates:"
             echo "  TARGET_DIR/.claude/agents/         # Agent definitions"
-            echo "  TARGET_DIR/.claude/skills/         # Skill modules (inc. doc-advisor)"
+            echo "  TARGET_DIR/.claude/skills/         # Skill modules (create-rules-toc, create-specs-toc)"
             echo "  TARGET_DIR/.claude/doc-advisor/    # Runtime output (ToC files)"
             echo ""
             echo "Default directories:"
@@ -239,6 +239,13 @@ if [[ -d "${DOC_ADVISOR_DIR}/docs" ]]; then
     LEGACY_CLEANED=1
 fi
 
+# v3.0 unified skill → v3.1 split skills (create-rules-toc, create-specs-toc)
+if [[ -d "${SKILLS_DIR}/doc-advisor" ]]; then
+    rm -rf "${SKILLS_DIR}/doc-advisor"
+    echo -e "${GREEN}Removed legacy: skills/doc-advisor/${NC}"
+    LEGACY_CLEANED=1
+fi
+
 if [[ $LEGACY_CLEANED -eq 1 ]]; then
     echo ""
 fi
@@ -355,16 +362,14 @@ if [[ -d "${AGENTS_DIR}" ]]; then
 fi
 copy_dir_with_substitution "${SCRIPT_DIR}/templates/agents" "${AGENTS_DIR}"
 
-# Copy skills/doc-advisor/SKILL.md (entry point only)
-echo "  skills/doc-advisor/ ..."
-DOC_ADVISOR_SKILL_DIR="${SKILLS_DIR}/doc-advisor"
+# Copy skills/create-rules-toc/ and skills/create-specs-toc/
+echo "  skills/create-rules-toc/ ..."
+mkdir -p "${SKILLS_DIR}/create-rules-toc"
+copy_and_substitute "${SCRIPT_DIR}/templates/skills/create-rules-toc/SKILL.md" "${SKILLS_DIR}/create-rules-toc/SKILL.md"
 
-# Clean and copy SKILL.md only
-if [[ -d "${DOC_ADVISOR_SKILL_DIR}" ]]; then
-    rm -rf "${DOC_ADVISOR_SKILL_DIR}"
-fi
-mkdir -p "${DOC_ADVISOR_SKILL_DIR}"
-copy_and_substitute "${SCRIPT_DIR}/templates/skills/doc-advisor/SKILL.md" "${DOC_ADVISOR_SKILL_DIR}/SKILL.md"
+echo "  skills/create-specs-toc/ ..."
+mkdir -p "${SKILLS_DIR}/create-specs-toc"
+copy_and_substitute "${SCRIPT_DIR}/templates/skills/create-specs-toc/SKILL.md" "${SKILLS_DIR}/create-specs-toc/SKILL.md"
 
 # Copy doc-advisor resources (config, docs, scripts)
 echo "  doc-advisor/ ..."
@@ -409,7 +414,7 @@ echo ""
 echo "Files created at:"
 echo "  ${CLAUDE_DIR}/"
 echo "    agents/            # Agent definitions"
-echo "    skills/            # Skill modules (inc. doc-advisor)"
+echo "    skills/            # Skill modules (create-rules-toc, create-specs-toc)"
 echo "    doc-advisor/       # Runtime output (ToC files)"
 # Save settings for next run
 cat > "$LAST_SETUP_FILE" << EOF
@@ -429,6 +434,6 @@ echo -e "  1. Verify ${BLUE}${RULES_DIR}${NC} and ${BLUE}${SPECS_DIR}${NC} direc
 echo "  2. Start Claude Code:"
 echo -e "     cd ${BLUE}${TARGET_DIR}${NC}"
 echo "     claude"
-echo -e "  3. Run ${YELLOW}/doc-advisor make-rules-toc --full${NC} for initial ToC generation"
-echo -e "  4. Run ${YELLOW}/doc-advisor make-specs-toc --full${NC} for initial ToC generation"
+echo -e "  3. Run ${YELLOW}/create-rules-toc --full${NC} for initial ToC generation"
+echo -e "  4. Run ${YELLOW}/create-specs-toc --full${NC} for initial ToC generation"
 echo ""

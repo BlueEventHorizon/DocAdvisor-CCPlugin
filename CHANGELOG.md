@@ -6,6 +6,47 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.1.0] - 2026-02-04
+
+### Changed
+- **Skill split**: Single `doc-advisor` skill split into two independent skills:
+  - `/create-rules-toc [--full]` - Generate rules ToC
+  - `/create-specs-toc [--full]` - Generate specs ToC
+- **Command format**:
+  - `/doc-advisor make-rules-toc` → `/create-rules-toc`
+  - `/doc-advisor make-specs-toc` → `/create-specs-toc`
+- **Argument handling**: `--full` option now properly passed as `$0` instead of unused `$1`
+
+### Structure (v3.1)
+```
+.claude/
+├── agents/
+│   ├── rules-advisor.md
+│   ├── specs-advisor.md
+│   ├── rules-toc-updater.md
+│   └── specs-toc-updater.md
+├── skills/
+│   ├── create-rules-toc/
+│   │   └── SKILL.md            # rules ToC generation
+│   └── create-specs-toc/
+│       └── SKILL.md            # specs ToC generation
+└── doc-advisor/
+    ├── config.yaml             # Configuration
+    ├── docs/                   # Documentation
+    ├── scripts/                # Python scripts
+    └── toc/                    # Runtime output
+        ├── rules/
+        └── specs/
+```
+
+### Removed
+- `skills/doc-advisor/` (replaced with split skills)
+
+### Fixed
+- `$1` argument (`--full` option) was not being used in the previous unified skill
+
+---
+
 ## [3.0.0] - 2026-02-03
 
 ### Added
@@ -136,24 +177,40 @@ DocAdvisor-CC/  (plugin directory)
 
 ## Version Comparison
 
-| Feature | v1.x | v2.0 | v3.0 |
-|---------|------|------|------|
-| Installation | Plugin mode | Project-based | Project-based |
-| Commands | `/create-*_toc` | `/create-*_toc` | `/doc-advisor make-*-toc` |
-| Config location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
-| Docs/Scripts location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
-| ToC output location | Plugin dir | `.claude/doc-advisor/rules/` | `.claude/doc-advisor/toc/rules/` |
-| Auto-trigger | No | No | Yes |
-| Parallel processing | No | Yes | Yes |
-| Incremental updates | No | Yes | Yes |
-| Custom directories | No | Yes | Yes |
-| Upgrade support | - | - | Yes |
+| Feature | v1.x | v2.0 | v3.0 | v3.1 |
+|---------|------|------|------|------|
+| Installation | Plugin mode | Project-based | Project-based | Project-based |
+| Commands | `/create-*_toc` | `/create-*_toc` | `/doc-advisor make-*-toc` | `/create-rules-toc`, `/create-specs-toc` |
+| Config location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
+| Docs/Scripts location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
+| ToC output location | Plugin dir | `.claude/doc-advisor/rules/` | `.claude/doc-advisor/toc/rules/` | `.claude/doc-advisor/toc/rules/` |
+| Auto-trigger | No | No | Yes | Yes |
+| Parallel processing | No | Yes | Yes | Yes |
+| Incremental updates | No | Yes | Yes | Yes |
+| Custom directories | No | Yes | Yes | Yes |
+| Upgrade support | - | - | Yes | Yes |
 
 ---
 
 ## Upgrade Path
 
-### v2.0 → v3.0
+### v3.0 → v3.1
+
+Run `setup.sh` on your project:
+
+```bash
+./setup.sh /path/to/your-project
+```
+
+**Automatic changes:**
+- `skills/doc-advisor/` removed (replaced with split skills)
+- New skills installed: `skills/create-rules-toc/`, `skills/create-specs-toc/`
+
+**Command changes:**
+- `/doc-advisor make-rules-toc` → `/create-rules-toc`
+- `/doc-advisor make-specs-toc` → `/create-specs-toc`
+
+### v2.0 → v3.1
 
 Run `setup.sh` on your project:
 
@@ -163,7 +220,8 @@ Run `setup.sh` on your project:
 
 **Automatic changes:**
 - Legacy commands deleted: `commands/create-rules_toc.md`, `commands/create-specs_toc.md`
-- `skills/doc-advisor/` cleaned (only SKILL.md remains)
+- `skills/doc-advisor/` removed
+- New skills installed: `skills/create-rules-toc/`, `skills/create-specs-toc/`
 - `doc-advisor/docs/` and `doc-advisor/scripts/` updated
 - ToC output moved: `doc-advisor/rules/` → `doc-advisor/toc/rules/`
 - ToC output moved: `doc-advisor/specs/` → `doc-advisor/toc/specs/`
@@ -175,16 +233,16 @@ Run `setup.sh` on your project:
 
 **Note:** After upgrade, regenerate ToC files:
 ```bash
-/doc-advisor make-rules-toc --full
-/doc-advisor make-specs-toc --full
+/create-rules-toc --full
+/create-specs-toc --full
 ```
 
-### v1.x → v3.0
+### v1.x → v3.1
 
 1. Remove plugin mode usage (`--plugin-dir` flag)
 2. Run `setup.sh` on your project
 3. Regenerate ToC with new commands:
    ```bash
-   /doc-advisor make-rules-toc --full
-   /doc-advisor make-specs-toc --full
+   /create-rules-toc --full
+   /create-specs-toc --full
    ```

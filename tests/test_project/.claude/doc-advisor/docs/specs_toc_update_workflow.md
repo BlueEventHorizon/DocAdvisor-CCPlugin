@@ -3,7 +3,7 @@ name: specs_toc_update_workflow
 description: specs_toc.yaml update workflow (individual entry file method)
 applicable_when:
   - Running as specs-toc-updater Agent
-  - Executing /doc-advisor make-specs-toc
+  - Executing /create-specs-toc
   - After adding, modifying, or deleting requirement/design documents
 ---
 
@@ -48,7 +48,7 @@ Workflow for updating `.claude/doc-advisor/toc/specs/specs_toc.yaml`. Uses **ind
 ## Workflow Overview
 
 ```
-/doc-advisor make-specs-toc execution
+/create-specs-toc execution
     ↓
 Check .claude/doc-advisor/toc/specs/.toc_work/ existence
     ↓

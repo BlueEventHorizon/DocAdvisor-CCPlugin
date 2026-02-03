@@ -62,7 +62,9 @@ echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.
 
 # Verify structure
 test_result "agents/ created" "0" "$([[ -d "$TEST_PROJECT/.claude/agents" ]] && echo 0 || echo 1)"
-test_result "skills/doc-advisor/SKILL.md created" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "skills/create-rules-toc/SKILL.md created" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-rules-toc/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "skills/create-specs-toc/SKILL.md created" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-specs-toc/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "No skills/doc-advisor/ (legacy)" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor" ]] && echo 0 || echo 1)"
 test_result "doc-advisor/config.yaml created" "0" "$([[ -f "$TEST_PROJECT/.claude/doc-advisor/config.yaml" ]] && echo 0 || echo 1)"
 test_result "doc-advisor/docs/ created" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advisor/docs" ]] && echo 0 || echo 1)"
 test_result "doc-advisor/scripts/ created" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advisor/scripts" ]] && echo 0 || echo 1)"
@@ -95,7 +97,7 @@ echo ""
 
 # ==================================================
 echo "=================================================="
-echo "Test 3: v3.0 structure verification"
+echo "Test 3: v3.1 structure verification (split skills)"
 echo "=================================================="
 
 setup_test_project
@@ -109,8 +111,9 @@ test_result "docs/ in doc-advisor/" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advi
 test_result "scripts/ in doc-advisor/" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advisor/scripts" ]] && echo 0 || echo 1)"
 test_result "toc/rules/ in doc-advisor/" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advisor/toc/rules" ]] && echo 0 || echo 1)"
 test_result "toc/specs/ in doc-advisor/" "0" "$([[ -d "$TEST_PROJECT/.claude/doc-advisor/toc/specs" ]] && echo 0 || echo 1)"
-test_result "Only SKILL.md in skills/doc-advisor/" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" ]] && echo 0 || echo 1)"
-test_result "No config in skills/doc-advisor/" "1" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/config.yaml" ]] && echo 0 || echo 1)"
+test_result "SKILL.md in skills/create-rules-toc/" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-rules-toc/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "SKILL.md in skills/create-specs-toc/" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-specs-toc/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "No legacy skills/doc-advisor/" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor" ]] && echo 0 || echo 1)"
 echo ""
 
 # ==================================================
@@ -161,7 +164,7 @@ echo ""
 
 # ==================================================
 echo "=================================================="
-echo "Test 6: skills/doc-advisor/ contains only SKILL.md (clean install)"
+echo "Test 6: v3.0 skills/doc-advisor/ removed when upgrading to v3.1 (split skills)"
 echo "=================================================="
 
 setup_test_project
@@ -169,21 +172,17 @@ setup_test_project
 # First install
 echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
 
-# Create fake old files that shouldn't exist in new version
-mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor/scripts"
-mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor/docs"
-echo "# Old script" > "$TEST_PROJECT/.claude/skills/doc-advisor/scripts/old_obsolete_script.py"
-echo "# Old doc" > "$TEST_PROJECT/.claude/skills/doc-advisor/docs/old_obsolete_doc.md"
+# Create fake v3.0 structure (unified skill)
+mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor"
+echo "# Old v3.0 skill" > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md"
 
 # Run setup again with 'o' to overwrite config
 echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\no" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
 
-# Verify old files are gone (skills/doc-advisor/ is clean install - only SKILL.md)
-test_result "Old script removed" "1" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/scripts/old_obsolete_script.py" ]] && echo 0 || echo 1)"
-test_result "Old doc removed" "1" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/docs/old_obsolete_doc.md" ]] && echo 0 || echo 1)"
-test_result "No scripts/ in skills/doc-advisor/" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor/scripts" ]] && echo 0 || echo 1)"
-test_result "No docs/ in skills/doc-advisor/" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor/docs" ]] && echo 0 || echo 1)"
-test_result "Only SKILL.md exists" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" ]] && echo 0 || echo 1)"
+# Verify: v3.0 unified skill removed, v3.1 split skills installed
+test_result "Legacy skills/doc-advisor/ removed" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor" ]] && echo 0 || echo 1)"
+test_result "skills/create-rules-toc/SKILL.md exists" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-rules-toc/SKILL.md" ]] && echo 0 || echo 1)"
+test_result "skills/create-specs-toc/SKILL.md exists" "0" "$([[ -f "$TEST_PROJECT/.claude/skills/create-specs-toc/SKILL.md" ]] && echo 0 || echo 1)"
 echo ""
 
 # ==================================================

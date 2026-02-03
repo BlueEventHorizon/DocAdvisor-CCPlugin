@@ -74,8 +74,8 @@ claude
 4) Generate initial ToC files
 
 ```bash
-/doc-advisor make-rules-toc --full
-/doc-advisor make-specs-toc --full
+/create-rules-toc --full
+/create-specs-toc --full
 ```
 
 > Using the Makefile:
@@ -90,11 +90,11 @@ claude
 ### ToC generation commands
 
 ```bash
-/doc-advisor make-rules-toc          # Incremental update
-/doc-advisor make-rules-toc --full   # Full rebuild
+/create-rules-toc          # Incremental update
+/create-rules-toc --full   # Full rebuild
 
-/doc-advisor make-specs-toc          # Incremental update
-/doc-advisor make-specs-toc --full   # Full rebuild
+/create-specs-toc          # Incremental update
+/create-specs-toc --full   # Full rebuild
 ```
 
 ### Advisor agents

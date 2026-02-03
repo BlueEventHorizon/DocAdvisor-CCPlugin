@@ -3,7 +3,7 @@ name: rules_toc_update_workflow
 description: rules_toc.yaml update workflow (individual entry file method)
 applicable_when:
   - Running as rules-toc-updater Agent
-  - Executing /doc-advisor make-rules-toc
+  - Executing /create-rules-toc
   - After adding, modifying, or deleting rule/workflow/format documents
 ---
 
@@ -48,7 +48,7 @@ Workflow for updating `.claude/doc-advisor/toc/rules/rules_toc.yaml`. Uses **ind
 ## Workflow Overview
 
 ```
-/doc-advisor make-rules-toc execution
+/create-rules-toc execution
     ↓
 Phase 1: Initialization (Orchestrator)
     ↓

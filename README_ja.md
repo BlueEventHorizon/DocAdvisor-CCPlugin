@@ -72,8 +72,8 @@ claude
 4) 初回 ToC 生成
 
 ```bash
-/doc-advisor make-rules-toc --full
-/doc-advisor make-specs-toc --full
+/create-rules-toc --full
+/create-specs-toc --full
 ```
 
 > Makefile を使う場合:
@@ -88,11 +88,11 @@ claude
 ### ToC 生成コマンド
 
 ```bash
-/doc-advisor make-rules-toc          # 差分更新
-/doc-advisor make-rules-toc --full   # 全件再生成
+/create-rules-toc          # 差分更新
+/create-rules-toc --full   # 全件再生成
 
-/doc-advisor make-specs-toc          # 差分更新
-/doc-advisor make-specs-toc --full   # 全件再生成
+/create-specs-toc          # 差分更新
+/create-specs-toc --full   # 全件再生成
 ```
 
 ### Advisor エージェント
