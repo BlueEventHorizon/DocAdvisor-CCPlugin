@@ -67,6 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - User's custom agents and commands are no longer accidentally deleted during upgrade
+- Legacy cleanup no longer incorrectly deletes `doc-advisor/config.yaml` on re-install (was looking for v2.0 legacy in wrong path)
 
 ---
 
