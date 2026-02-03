@@ -1,6 +1,6 @@
 ---
 name: rules-toc-updater
-description: Specialized agent that generates ToC entries for a single rule document. Processes individual YAML files in .claude/doc-advisor/rules/.toc_work/.
+description: Specialized agent that generates ToC entries for a single rule document. Processes individual YAML files in .claude/doc-advisor/toc/rules/.toc_work/.
 model: {{AGENT_MODEL}}
 color: orange
 tools: Read, Bash
@@ -8,7 +8,7 @@ tools: Read, Bash
 
 ## Overview
 
-Processes a single rule document (`.md` file under `{{RULES_DIR}}`) and completes the corresponding entry YAML in `.claude/doc-advisor/rules/.toc_work/`.
+Processes a single rule document (`.md` file under `{{RULES_DIR}}`) and completes the corresponding entry YAML in `.claude/doc-advisor/toc/rules/.toc_work/`.
 
 **Important**: This agent processes only one file. Multiple file processing is managed by the orchestrator (create-rules_toc command) via parallel invocation.
 
@@ -16,7 +16,7 @@ Processes a single rule document (`.md` file under `{{RULES_DIR}}`) and complete
 
 | Parameter | Required | Description |
 |-----------|----------|-------------|
-| `entry_file` | Yes | Path to the entry YAML file to process (e.g., `.claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml`) |
+| `entry_file` | Yes | Path to the entry YAML file to process (e.g., `.claude/doc-advisor/toc/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml`) |
 
 ## Required Reference Documents [MANDATORY]
 
@@ -31,7 +31,7 @@ Read the following before processing:
 4. Call the write script to save the completed entry:
 
 ```bash
-{{PYTHON_PATH}} .claude/skills/doc-advisor/scripts/write_rules_pending.py \
+{{PYTHON_PATH}} .claude/doc-advisor/scripts/write_rules_pending.py \
   --entry-file "{entry_file}" \
   --title "{extracted title}" \
   --purpose "{extracted purpose}" \

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`.claude/doc-advisor/rules/rules_toc.yaml` is the **single source of truth** for the **rules-advisor Subagent** to identify documents needed for tasks.
+`.claude/doc-advisor/toc/rules/rules_toc.yaml` is the **single source of truth** for the **rules-advisor Subagent** to identify documents needed for tasks.
 
 The quality of this file determines task execution success. **Missing information is not acceptable.**
 
@@ -36,8 +36,8 @@ The quality of this file determines task execution success. **Missing informatio
 ```
 
 **Exclusions**:
-- `.claude/doc-advisor/rules/rules_toc.yaml` (self)
-- `.claude/doc-advisor/rules/.toc_work/` (work directory)
+- `.claude/doc-advisor/toc/rules/rules_toc.yaml` (self)
+- `.claude/doc-advisor/toc/rules/.toc_work/` (work directory)
 - `{{RULES_DIR}}/**/reference/` (reference materials)
 
 ---
@@ -49,7 +49,7 @@ In incremental mode, file content hashes are recorded for change detection.
 ### Checksum File
 
 ```yaml
-# .claude/doc-advisor/rules/.toc_checksums.yaml (Git tracked)
+# .claude/doc-advisor/toc/rules/.toc_checksums.yaml (Git tracked)
 checksums:
   {{RULES_DIR}}/core/architecture_rule.md: a1b2c3d4e5f6...
   {{RULES_DIR}}/core/coding_rule.md: b2c3d4e5f6a1...
@@ -84,7 +84,7 @@ Structure definition for work files used in individual entry file method.
 ### File Layout
 
 ```
-.claude/doc-advisor/rules/.toc_work/   # Work directory (.gitignore target)
+.claude/doc-advisor/toc/rules/.toc_work/   # Work directory (.gitignore target)
 ├── {{RULES_DIR}}_core_architecture_rule.yaml
 ├── {{RULES_DIR}}_core_coding_rule.yaml
 ├── {{RULES_DIR}}_layer_domain_domain_core.yaml
@@ -106,7 +106,7 @@ Conversion rule: `/` → `_`, `.md` → `.yaml`
 ### Entry YAML Structure
 
 ```yaml
-# .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml
+# .claude/doc-advisor/toc/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml
 
 _meta:
   source_file: {{RULES_DIR}}/core/architecture_rule.md    # Path from project root
@@ -222,7 +222,7 @@ docs:
 ## Complete Example
 
 ```yaml
-# .claude/doc-advisor/rules/rules_toc.yaml
+# .claude/doc-advisor/toc/rules/rules_toc.yaml
 
 metadata:
   name: Development Document Search Index

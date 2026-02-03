@@ -42,11 +42,11 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
     exit 1
 }
 
-CONFIG_FILE="${TARGET_DIR}/.claude/doc-advisor/config.yaml"
+CONFIG_FILE="${TARGET_DIR}/.claude/skills/doc-advisor/config.yaml"
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo "Error: config.yaml not found: $CONFIG_FILE"
-    echo "Run 'make setup' first."
+    echo "Run './setup.sh' first."
     exit 1
 fi
 

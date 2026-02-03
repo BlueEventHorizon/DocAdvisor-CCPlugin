@@ -3,7 +3,7 @@ name: rules_toc_update_workflow
 description: rules_toc.yaml update workflow (individual entry file method)
 applicable_when:
   - Running as rules-toc-updater Agent
-  - Executing /create-rules_toc command
+  - Executing /doc-advisor make-rules-toc
   - After adding, modifying, or deleting rule/workflow/format documents
 ---
 
@@ -11,7 +11,7 @@ applicable_when:
 
 ## Overview
 
-Workflow for updating `.claude/doc-advisor/rules/rules_toc.yaml`. Uses **individual entry file method**, processing each rule document with independent subagents.
+Workflow for updating `.claude/doc-advisor/toc/rules/rules_toc.yaml`. Uses **individual entry file method**, processing each rule document with independent subagents.
 
 ## Architecture
 
@@ -24,7 +24,7 @@ Workflow for updating `.claude/doc-advisor/rules/rules_toc.yaml`. Uses **individ
 ### Directory Structure
 
 ```
-.claude/doc-advisor/rules/
+.claude/doc-advisor/toc/rules/
 ├── rules_toc.yaml              # Final artifact (after merge)
 ├── .toc_checksums.yaml         # Change detection checksums
 └── .toc_work/                  # Work directory (.gitignore target)
@@ -48,7 +48,7 @@ Workflow for updating `.claude/doc-advisor/rules/rules_toc.yaml`. Uses **individ
 ## Workflow Overview
 
 ```
-/create-rules_toc execution
+/doc-advisor make-rules-toc execution
     ↓
 Phase 1: Initialization (Orchestrator)
     ↓
@@ -63,20 +63,20 @@ Cleanup
 
 ## Phase 1: Initialization (Orchestrator)
 
-### Step 1.1: Check .claude/doc-advisor/rules/.toc_work/ status
+### Step 1.1: Check .claude/doc-advisor/toc/rules/.toc_work/ status
 
 ```bash
-test -d .claude/doc-advisor/rules/.toc_work && echo "EXISTS" || echo "NOT_EXISTS"
+test -d .claude/doc-advisor/toc/rules/.toc_work && echo "EXISTS" || echo "NOT_EXISTS"
 ```
 
 ### Step 1.2: Mode determination and branching
 
 | Condition | Processing |
 |-----------|------------|
-| `--full` option specified | Delete .claude/doc-advisor/rules/.toc_work/ → New processing in full mode |
-| .claude/doc-advisor/rules/.toc_work/ exists | Continue mode (process existing pending YAMLs) |
-| .claude/doc-advisor/rules/.toc_work/ doesn't exist + rules_toc.yaml doesn't exist | New processing in full mode |
-| .claude/doc-advisor/rules/.toc_work/ doesn't exist + rules_toc.yaml exists | incremental mode |
+| `--full` option specified | Delete .claude/doc-advisor/toc/rules/.toc_work/ → New processing in full mode |
+| .claude/doc-advisor/toc/rules/.toc_work/ exists | Continue mode (process existing pending YAMLs) |
+| .claude/doc-advisor/toc/rules/.toc_work/ doesn't exist + rules_toc.yaml doesn't exist | New processing in full mode |
+| .claude/doc-advisor/toc/rules/.toc_work/ doesn't exist + rules_toc.yaml exists | incremental mode |
 
 ### Step 1.3: Identify target files
 
@@ -85,7 +85,7 @@ test -d .claude/doc-advisor/rules/.toc_work && echo "EXISTS" || echo "NOT_EXISTS
 
 ### Step 1.4: Generate pending YAML templates
 
-Generate templates in `.claude/doc-advisor/rules/.toc_work/` for each target file.
+Generate templates in `.claude/doc-advisor/toc/rules/.toc_work/` for each target file.
 
 ---
 
@@ -93,7 +93,7 @@ Generate templates in `.claude/doc-advisor/rules/.toc_work/` for each target fil
 
 ### Step 2.1: Identify pending YAMLs
 
-Read `.claude/doc-advisor/rules/.toc_work/*.yaml` and identify files with `_meta.status: pending`
+Read `.claude/doc-advisor/toc/rules/.toc_work/*.yaml` and identify files with `_meta.status: pending`
 
 ### Step 2.2: Launch subagents in parallel
 
@@ -101,8 +101,8 @@ Read `.claude/doc-advisor/rules/.toc_work/*.yaml` and identify files with `_meta
 
 ```
 # Orchestrator calls multiple Task tools in one message
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/xxx.yaml")
-Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/rules/.toc_work/yyy.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/toc/rules/.toc_work/xxx.yaml")
+Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/toc/rules/.toc_work/yyy.yaml")
 ... (up to 5 simultaneous)
 ```
 
@@ -127,7 +127,7 @@ Repeat Steps 2.1-2.3 until all pending YAMLs are completed
 
 ### Step 3.1: Completion check
 
-Verify each `.claude/doc-advisor/rules/.toc_work/*.yaml` meets:
+Verify each `.claude/doc-advisor/toc/rules/.toc_work/*.yaml` meets:
 - `_meta.status == completed`
 - `title != null`
 - `purpose != null`
@@ -137,23 +137,23 @@ Verify each `.claude/doc-advisor/rules/.toc_work/*.yaml` meets:
 ### Step 3.2: Merge processing
 
 **full mode**:
-1. Read all `.claude/doc-advisor/rules/.toc_work/*.yaml`
+1. Read all `.claude/doc-advisor/toc/rules/.toc_work/*.yaml`
 2. Exclude `_meta` and convert to `docs` section
 3. Set `metadata` (generated_at, file_count)
-4. Write to `.claude/doc-advisor/rules/rules_toc.yaml`
+4. Write to `.claude/doc-advisor/toc/rules/rules_toc.yaml`
 
 **incremental mode**:
-1. Read existing `.claude/doc-advisor/rules/rules_toc.yaml`
+1. Read existing `.claude/doc-advisor/toc/rules/rules_toc.yaml`
 2. Delete entries recorded in `.toc_checksums.yaml` but file doesn't exist
-3. Overwrite/add entries from `.claude/doc-advisor/rules/.toc_work/*.yaml` (exclude `_meta`)
+3. Overwrite/add entries from `.claude/doc-advisor/toc/rules/.toc_work/*.yaml` (exclude `_meta`)
 4. Update `metadata.generated_at`, `metadata.file_count`
-5. Write to `.claude/doc-advisor/rules/rules_toc.yaml`
-6. Update `.claude/doc-advisor/rules/.toc_checksums.yaml` (run `/create-toc-checksums` skill)
+5. Write to `.claude/doc-advisor/toc/rules/rules_toc.yaml`
+6. Update `.claude/doc-advisor/toc/rules/.toc_checksums.yaml` (run `/create-toc-checksums` skill)
 
 ### Step 3.3: Cleanup
 
 ```bash
-rm -rf .claude/doc-advisor/rules/.toc_work
+rm -rf .claude/doc-advisor/toc/rules/.toc_work
 ```
 
 ---
@@ -179,5 +179,5 @@ Check before merge:
 
 - `rules_toc_format.md` - Format definition (YAML schema)
 - `agents/rules-toc-updater.md` - Single file processing subagent
-- `commands/create-rules_toc.md` - Orchestrator command
+- `doc-advisor/docs/rules_orchestrator.md` - Orchestrator workflow
 - `agents/rules-advisor.md` - Search subagent

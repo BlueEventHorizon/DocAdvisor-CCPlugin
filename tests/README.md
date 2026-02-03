@@ -13,6 +13,7 @@ tests/
 ├── test_checksums.sh          # Phase 2: create_checksums.py tests
 ├── test_custom_dirs.sh        # Phase 3: Custom directory names
 ├── test_edge_cases.sh         # Phase 4: Edge cases
+├── test_setup_upgrade.sh      # Phase 5: Setup upgrade scenarios
 ├── test_project/              # Default config test project
 │   ├── rules/
 │   │   └── coding_standards.md
@@ -81,6 +82,9 @@ chmod +x *.sh
 
 # Phase 4: Edge cases
 ./test_edge_cases.sh
+
+# Phase 5: Setup upgrade scenarios
+./test_setup_upgrade.sh
 ```
 
 ### Clean Up Test Environment
@@ -132,6 +136,18 @@ chmod +x *.sh
 | 4-3 | Empty directory handling |
 | 4-4 | Special characters in content |
 | 4-5 | File count verification |
+
+### Phase 5: Setup Upgrade
+
+| Test | Description |
+|------|-------------|
+| 5-1 | Clean install (no existing .claude) |
+| 5-2 | Legacy commands/ auto-deleted (file-specific) |
+| 5-3 | Legacy doc-advisor/ files auto-deleted |
+| 5-4 | config.yaml skip (preserve existing) |
+| 5-5 | config.yaml overwrite with backup |
+| 5-6 | skills/doc-advisor/ old files removed |
+| 5-7 | agents/ custom agent preserved |
 
 ## Adding New Tests
 

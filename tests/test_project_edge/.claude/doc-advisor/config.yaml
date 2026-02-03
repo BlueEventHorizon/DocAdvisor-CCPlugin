@@ -4,9 +4,9 @@
 # === rules configuration ===
 rules:
   root_dir: rules
-  toc_file: .claude/doc-advisor/rules/rules_toc.yaml
-  checksums_file: .claude/doc-advisor/rules/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/rules/.toc_work/
+  toc_file: .claude/doc-advisor/toc/rules/rules_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/rules/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/rules/.toc_work/
 
   patterns:
     target_glob: "**/*.md"
@@ -21,9 +21,9 @@ rules:
 # === specs configuration ===
 specs:
   root_dir: specs
-  toc_file: .claude/doc-advisor/specs/specs_toc.yaml
-  checksums_file: .claude/doc-advisor/specs/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/specs/.toc_work/
+  toc_file: .claude/doc-advisor/toc/specs/specs_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/specs/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/specs/.toc_work/
 
   patterns:
     target_dirs:

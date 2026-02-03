@@ -50,15 +50,15 @@ echo ""
 
 cd "$TEST_PROJECT"
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 echo ""
 
-SCRIPTS_DIR="$TEST_PROJECT/.claude/skills/doc-advisor/scripts"
-RULES_CHECKSUMS=".claude/doc-advisor/rules/.toc_checksums.yaml"
-SPECS_CHECKSUMS=".claude/doc-advisor/specs/.toc_checksums.yaml"
+SCRIPTS_DIR="$TEST_PROJECT/.claude/doc-advisor/scripts"
+RULES_CHECKSUMS=".claude/doc-advisor/toc/rules/.toc_checksums.yaml"
+SPECS_CHECKSUMS=".claude/doc-advisor/toc/specs/.toc_checksums.yaml"
 
 echo "=================================================="
 echo "Test 2-7a: create_checksums.py - Rules target"

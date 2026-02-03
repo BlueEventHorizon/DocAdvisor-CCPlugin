@@ -11,7 +11,7 @@ Analyze task content and return a list of required development document paths.
 
 ## Procedure
 
-1. Read `.claude/doc-advisor/rules/rules_toc.yaml` **completely**
+1. Read `.claude/doc-advisor/toc/rules/rules_toc.yaml` **completely**
    - **MANDATORY**: Read the entire file with the Read tool. Do NOT use Grep or search tools on ToC
    - **If not found**: Search with Glob `guidelines/**/*.md` and read each file directly
 2. Deeply understand all entries, then match task content against each entry's `applicable_tasks` and `keywords`

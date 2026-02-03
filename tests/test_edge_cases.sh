@@ -63,13 +63,13 @@ if [[ ! -d ".claude" ]]; then
     exit 1
 fi
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 echo ""
 
-SCRIPTS_DIR="$TEST_PROJECT/.claude/skills/doc-advisor/scripts"
+SCRIPTS_DIR="$TEST_PROJECT/.claude/doc-advisor/scripts"
 
 echo "=================================================="
 echo "Test 4-1: Deep nested files (5 levels)"
@@ -81,12 +81,12 @@ $PYTHON_CMD "$SCRIPTS_DIR/create_pending_yaml_rules.py" --full 2>/dev/null || EX
 test_result "create_pending_yaml_rules (deep)" "0" "$EXIT_CODE"
 
 # Check if deep file was found
-if ls .claude/doc-advisor/rules/.toc_work/*deep*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/rules/.toc_work/*deep*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}: Deep nested file found"
     ((PASS_COUNT++))
 
     # Verify path is correct
-    if grep -q "source_file: rules/a/b/c/d/e/deep_rule.md" .claude/doc-advisor/rules/.toc_work/*deep*.yaml; then
+    if grep -q "source_file: rules/a/b/c/d/e/deep_rule.md" .claude/doc-advisor/toc/rules/.toc_work/*deep*.yaml; then
         echo -e "${GREEN}PASS${NC}: Deep path correctly captured"
         ((PASS_COUNT++))
     else
@@ -104,12 +104,12 @@ echo "Test 4-2: Japanese filename"
 echo "=================================================="
 
 # Check if Japanese filename was found
-if ls .claude/doc-advisor/rules/.toc_work/*日本語*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/rules/.toc_work/*日本語*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}: Japanese filename found"
     ((PASS_COUNT++))
 
     # Verify path is correct
-    if grep -q "日本語" .claude/doc-advisor/rules/.toc_work/*日本語*.yaml; then
+    if grep -q "日本語" .claude/doc-advisor/toc/rules/.toc_work/*日本語*.yaml; then
         echo -e "${GREEN}PASS${NC}: Japanese characters in YAML"
         ((PASS_COUNT++))
     else
@@ -132,7 +132,7 @@ $PYTHON_CMD "$SCRIPTS_DIR/create_pending_yaml_specs.py" --full 2>/dev/null || EX
 test_result "create_pending_yaml_specs (empty dir)" "0" "$EXIT_CODE"
 
 # design/ is empty (only .gitkeep), should not create YAML for .gitkeep
-if ls .claude/doc-advisor/specs/.toc_work/*gitkeep*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/specs/.toc_work/*gitkeep*.yaml 1>/dev/null 2>&1; then
     echo -e "${RED}FAIL${NC}: .gitkeep should not create YAML"
     ((FAIL_COUNT++))
 else
@@ -146,7 +146,7 @@ echo "Test 4-4: Special characters in content"
 echo "=================================================="
 
 # Check if special_chars file was processed
-if ls .claude/doc-advisor/specs/.toc_work/*special*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/specs/.toc_work/*special*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}: Special chars file processed"
     ((PASS_COUNT++))
 else
@@ -155,7 +155,7 @@ else
 fi
 
 # Test write_specs_pending with special characters
-SPECS_PENDING=$(ls .claude/doc-advisor/specs/.toc_work/*special*.yaml 2>/dev/null | head -1 || echo "")
+SPECS_PENDING=$(ls .claude/doc-advisor/toc/specs/.toc_work/*special*.yaml 2>/dev/null | head -1 || echo "")
 
 if [[ -n "$SPECS_PENDING" ]]; then
     EXIT_CODE=0
@@ -198,7 +198,7 @@ echo "Test 4-5: File count verification"
 echo "=================================================="
 
 # Count rules pending files
-RULES_COUNT=$(ls -1 .claude/doc-advisor/rules/.toc_work/*.yaml 2>/dev/null | wc -l | tr -d ' ')
+RULES_COUNT=$(ls -1 .claude/doc-advisor/toc/rules/.toc_work/*.yaml 2>/dev/null | wc -l | tr -d ' ')
 echo "Rules pending files: $RULES_COUNT"
 
 # Should have 2 files: deep_rule.md and 日本語ルール.md
@@ -210,7 +210,7 @@ else
 fi
 
 # Count specs pending files
-SPECS_COUNT=$(ls -1 .claude/doc-advisor/specs/.toc_work/*.yaml 2>/dev/null | wc -l | tr -d ' ')
+SPECS_COUNT=$(ls -1 .claude/doc-advisor/toc/specs/.toc_work/*.yaml 2>/dev/null | wc -l | tr -d ' ')
 echo "Specs pending files: $SPECS_COUNT"
 
 # Should have 1 file: special_chars.md (design/ is empty)
@@ -227,8 +227,8 @@ echo "Test 4-6: Unicode filename in incremental merge"
 echo "=================================================="
 
 # Create initial specs_toc.yaml with Japanese filename
-mkdir -p .claude/doc-advisor/specs
-cat > .claude/doc-advisor/specs/specs_toc.yaml << 'TOCEOF'
+mkdir -p .claude/doc-advisor/toc/specs
+cat > .claude/doc-advisor/toc/specs/specs_toc.yaml << 'TOCEOF'
 # Test ToC with Japanese filename
 docs:
   日本語ドキュメント.md:
@@ -247,8 +247,8 @@ docs:
 TOCEOF
 
 # Create a pending YAML file for incremental merge
-mkdir -p .claude/doc-advisor/specs/.toc_work
-cat > .claude/doc-advisor/specs/.toc_work/specs_new_file.yaml << 'PENDINGEOF'
+mkdir -p .claude/doc-advisor/toc/specs/.toc_work
+cat > .claude/doc-advisor/toc/specs/.toc_work/specs_new_file.yaml << 'PENDINGEOF'
 # metadata
 source_file: specs/main/requirements/new_file.md
 doc_type: requirement
@@ -263,12 +263,12 @@ keywords:
 PENDINGEOF
 
 # Run incremental merge (--mode incremental)
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/merge_specs_toc.py --mode incremental 2>/dev/null
+$PYTHON_CMD .claude/doc-advisor/scripts/merge_specs_toc.py --mode incremental 2>/dev/null
 EXIT_CODE=$?
 
 if [[ $EXIT_CODE -eq 0 ]]; then
     # Check if Japanese filename entry is preserved
-    if grep -q "日本語ドキュメント.md:" .claude/doc-advisor/specs/specs_toc.yaml 2>/dev/null; then
+    if grep -q "日本語ドキュメント.md:" .claude/doc-advisor/toc/specs/specs_toc.yaml 2>/dev/null; then
         echo -e "${GREEN}PASS${NC}: Japanese filename preserved in incremental merge"
         ((PASS_COUNT++))
     else
@@ -277,7 +277,7 @@ if [[ $EXIT_CODE -eq 0 ]]; then
     fi
 
     # Check if Japanese content is preserved
-    if grep -q "日本語タイトル" .claude/doc-advisor/specs/specs_toc.yaml 2>/dev/null; then
+    if grep -q "日本語タイトル" .claude/doc-advisor/toc/specs/specs_toc.yaml 2>/dev/null; then
         echo -e "${GREEN}PASS${NC}: Japanese content preserved"
         ((PASS_COUNT++))
     else

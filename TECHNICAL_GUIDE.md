@@ -111,11 +111,15 @@ cd DocAdvisor-CC
 This copies all necessary files to your project:
 ```
 your-project/.claude/
-├── commands/          # Command files
 ├── agents/            # Agent definitions
-├── skills/            # Skill modules
-└── doc-advisor/
-    └── config.yaml    # Project configuration
+├── skills/
+│   └── doc-advisor/
+│       └── SKILL.md   # Entry point only
+└── doc-advisor/       # All resources and runtime output
+    ├── config.yaml
+    ├── docs/
+    ├── scripts/
+    └── toc/           # ToC files
 ```
 
 Setup will interactively ask for:
@@ -149,12 +153,12 @@ make setup TARGET=/path/to/your-project  # Specify target
 
 ```bash
 # Development documentation (rules/)
-/create-rules_toc          # Incremental update (changed files only)
-/create-rules_toc --full   # Full rebuild
+/doc-advisor make-rules-toc          # Incremental update (changed files only)
+/doc-advisor make-rules-toc --full   # Full rebuild
 
 # Requirements/design documents (specs/)
-/create-specs_toc          # Incremental update
-/create-specs_toc --full   # Full rebuild
+/doc-advisor make-specs-toc          # Incremental update
+/doc-advisor make-specs-toc --full   # Full rebuild
 ```
 
 ### Advisor Agents
@@ -201,7 +205,7 @@ The scripts use the following configuration file:
 ### ToC Generation Flow
 
 ```
-/create-*_toc
+/doc-advisor make-*-toc
         |
         v
 +-------------------------------------+
@@ -241,18 +245,18 @@ Task(subagent_type: *-advisor)
 ```
 DocAdvisor-CC/
 ├── templates/
-│   ├── commands/               # Command templates
-│   │   ├── create-rules_toc.md
-│   │   └── create-specs_toc.md
 │   ├── agents/                 # Agent templates
 │   │   ├── rules-advisor.md
 │   │   ├── specs-advisor.md
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
-│   ├── skills/                 # Skill templates
-│   │   └── doc-advisor/        # ToC generation scripts
-│   └── doc-advisor/
-│       └── docs/               # ToC format/workflow documentation
+│   ├── skills/
+│   │   └── doc-advisor/
+│   │       └── SKILL.md        # Entry point only
+│   └── doc-advisor/            # ToC generation resources
+│       ├── config.yaml         # Configuration template
+│       ├── docs/               # Orchestrator, format, workflow docs
+│       └── scripts/            # Python scripts
 ├── setup.sh                    # Project setup script
 ├── Makefile                    # Build automation
 └── README.md
@@ -263,27 +267,27 @@ DocAdvisor-CC/
 ```
 your-project/
 ├── .claude/
-│   ├── commands/
-│   │   ├── create-rules_toc.md
-│   │   └── create-specs_toc.md
 │   ├── agents/
 │   │   ├── rules-advisor.md
 │   │   ├── specs-advisor.md
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
 │   ├── skills/
-│   │   └── doc-advisor/        # ToC generation scripts
-│   └── doc-advisor/
-│       ├── config.yaml
-│       ├── docs/               # ToC format/workflow documentation
-│       ├── rules/              # Generated artifacts for rules
-│       │   ├── rules_toc.yaml
-│       │   ├── .toc_checksums.yaml
-│       │   └── .toc_work/
-│       └── specs/              # Generated artifacts for specs
-│           ├── specs_toc.yaml
-│           ├── .toc_checksums.yaml
-│           └── .toc_work/
+│   │   └── doc-advisor/
+│   │       └── SKILL.md        # Entry point only
+│   └── doc-advisor/            # All resources and runtime output
+│       ├── config.yaml         # Configuration
+│       ├── docs/               # Orchestrator, format, workflow docs
+│       ├── scripts/            # Python scripts
+│       └── toc/                # Runtime output
+│           ├── rules/          # Generated artifacts for rules
+│           │   ├── rules_toc.yaml
+│           │   ├── .toc_checksums.yaml
+│           │   └── .toc_work/
+│           └── specs/          # Generated artifacts for specs
+│               ├── specs_toc.yaml
+│               ├── .toc_checksums.yaml
+│               └── .toc_work/
 ├── rules/                      # Rules documentation (configurable)
 │   └── *.md                    # Documentation files
 └── specs/                      # Specs documentation (configurable)
@@ -301,9 +305,9 @@ Located at `.claude/doc-advisor/config.yaml`:
 # === rules configuration ===
 rules:
   root_dir: rules
-  toc_file: .claude/doc-advisor/rules/rules_toc.yaml
-  checksums_file: .claude/doc-advisor/rules/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/rules/.toc_work/
+  toc_file: .claude/doc-advisor/toc/rules/rules_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/rules/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/rules/.toc_work/
 
   patterns:
     target_glob: "**/*.md"
@@ -318,9 +322,9 @@ rules:
 # === specs configuration ===
 specs:
   root_dir: specs
-  toc_file: .claude/doc-advisor/specs/specs_toc.yaml
-  checksums_file: .claude/doc-advisor/specs/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/specs/.toc_work/
+  toc_file: .claude/doc-advisor/toc/specs/specs_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/specs/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/specs/.toc_work/
 
   patterns:
     target_dirs:
@@ -380,11 +384,12 @@ Ensure you've run setup for your project:
 ./setup.sh /path/to/your-project
 ```
 
-### Commands not recognized
+### Skills not recognized
 
 Verify the files exist:
 ```bash
-ls -la /path/to/your-project/.claude/commands/
+ls -la /path/to/your-project/.claude/skills/doc-advisor/SKILL.md
+ls -la /path/to/your-project/.claude/doc-advisor/
 ls -la /path/to/your-project/.claude/agents/
 ```
 
@@ -392,15 +397,49 @@ ls -la /path/to/your-project/.claude/agents/
 
 1. Check if target directories exist in your project
 2. Verify config paths are correct
-3. Look for `.claude/doc-advisor/{rules,specs}/.toc_work/` for recovery
+3. Look for `.claude/doc-advisor/toc/{rules,specs}/.toc_work/` for recovery
 
 ## Migration from v2.0 (Plugin Mode)
 
-If you were using the plugin mode (`--plugin-dir`), follow these steps:
+If you were using the plugin mode (`--plugin-dir`), run setup.sh to upgrade:
 
-1. Run setup.sh on your project to install the new files
-2. Remove the `--plugin-dir` flag when starting Claude Code
-3. Your existing `config.yaml` in `.claude/doc-advisor/` will be preserved
+```bash
+./setup.sh /path/to/your-project
+```
+
+### What happens during upgrade
+
+**Automatically deleted** (doc-advisor legacy files):
+- `.claude/commands/create-rules_toc.md`
+- `.claude/commands/create-specs_toc.md`
+- `.claude/skills/doc-advisor/` (cleaned, only SKILL.md remains)
+
+**Installed** (new v3.0 structure):
+- `.claude/skills/doc-advisor/SKILL.md` (entry point)
+- `.claude/doc-advisor/config.yaml`
+- `.claude/doc-advisor/docs/`
+- `.claude/doc-advisor/scripts/`
+- `.claude/doc-advisor/toc/rules/` (ToC output)
+- `.claude/doc-advisor/toc/specs/` (ToC output)
+
+**Preserved** (user's custom files):
+- `.claude/commands/your-custom-command.md` (any other commands)
+- `.claude/agents/your-custom-agent.md` (any non-doc-advisor agents)
+
+**config.yaml handling**:
+- If `.claude/doc-advisor/config.yaml` exists, you'll be prompted:
+  - `[o]` Overwrite (backup to config.yaml.bak)
+  - `[s]` Skip (keep existing config)
+  - `[m]` Merge manually (show diff after setup)
+
+### After upgrade
+
+1. Remove the `--plugin-dir` flag when starting Claude Code - all files are now in your project.
+2. Regenerate ToC files (paths have changed):
+   ```bash
+   /doc-advisor make-rules-toc --full
+   /doc-advisor make-specs-toc --full
+   ```
 
 ## License
 

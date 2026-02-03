@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`.claude/doc-advisor/specs/specs_toc.yaml` is the **single source of truth** for the **specs-advisor Subagent** to identify requirement and design documents needed for tasks.
+`.claude/doc-advisor/toc/specs/specs_toc.yaml` is the **single source of truth** for the **specs-advisor Subagent** to identify requirement and design documents needed for tasks.
 
 The quality of this file determines task execution success. **Missing information is not acceptable.**
 
@@ -37,8 +37,8 @@ specs/{feature}/design/**/*.md
 ```
 
 **Exclusions**:
-- `.claude/doc-advisor/specs/specs_toc.yaml` (self)
-- `.claude/doc-advisor/specs/.toc_work/` (work directory)
+- `.claude/doc-advisor/toc/specs/specs_toc.yaml` (self)
+- `.claude/doc-advisor/toc/specs/.toc_work/` (work directory)
 - `specs/**/reference/` (reference materials)
 
 ---
@@ -50,7 +50,7 @@ In incremental mode, file content hashes are recorded for change detection.
 ### Checksum File
 
 ```yaml
-# .claude/doc-advisor/specs/.toc_checksums.yaml (Git tracked)
+# .claude/doc-advisor/toc/specs/.toc_checksums.yaml (Git tracked)
 checksums:
   specs/main/requirements/app_overview.md: a1b2c3d4e5f6...
   specs/main/design/list_screen_design.md: b2c3d4e5f6a1...
@@ -85,7 +85,7 @@ Structure definition for work files used in individual entry file method.
 ### File Layout
 
 ```
-.claude/doc-advisor/specs/.toc_work/        # Work directory (.gitignore target)
+.claude/doc-advisor/toc/specs/.toc_work/        # Work directory (.gitignore target)
 ├── specs_main_requirements_app_overview.yaml
 ├── specs_main_design_list_screen_design.yaml
 └── ... (for each target file)
@@ -106,7 +106,7 @@ Conversion rule: `/` → `_`, `.md` → `.yaml`
 ### Entry YAML Structure
 
 ```yaml
-# .claude/doc-advisor/specs/.toc_work/specs_main_requirements_app_overview.yaml
+# .claude/doc-advisor/toc/specs/.toc_work/specs_main_requirements_app_overview.yaml
 
 _meta:
   source_file: specs/main/requirements/app_overview.md  # Path from project root
@@ -249,7 +249,7 @@ docs:
 ## Complete Example
 
 ```yaml
-# .claude/doc-advisor/specs/specs_toc.yaml
+# .claude/doc-advisor/toc/specs/specs_toc.yaml
 
 metadata:
   name: Requirement & Design Document Search Index

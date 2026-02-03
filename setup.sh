@@ -58,10 +58,9 @@ while [[ $# -gt 0 ]]; do
             echo "  ./setup.sh -h, --help    # Show help"
             echo ""
             echo "This script creates:"
-            echo "  TARGET_DIR/.claude/commands/       # Command files"
             echo "  TARGET_DIR/.claude/agents/         # Agent definitions"
-            echo "  TARGET_DIR/.claude/skills/         # Skill modules"
-            echo "  TARGET_DIR/.claude/doc-advisor/config.yaml"
+            echo "  TARGET_DIR/.claude/skills/         # Skill modules (inc. doc-advisor)"
+            echo "  TARGET_DIR/.claude/doc-advisor/    # Runtime output (ToC files)"
             echo ""
             echo "Default directories:"
             echo "  Rules: ${DEFAULT_RULES_DIR}"
@@ -188,15 +187,65 @@ echo ""
 
 # Create directories
 CLAUDE_DIR="${TARGET_DIR}/.claude"
-CONFIG_DIR="${CLAUDE_DIR}/doc-advisor"
-COMMANDS_DIR="${CLAUDE_DIR}/commands"
+DOC_ADVISOR_DIR="${CLAUDE_DIR}/doc-advisor"
 AGENTS_DIR="${CLAUDE_DIR}/agents"
 SKILLS_DIR="${CLAUDE_DIR}/skills"
 
-mkdir -p "${CONFIG_DIR}"
-mkdir -p "${CONFIG_DIR}/rules"    # ToC/checksums for rules
-mkdir -p "${CONFIG_DIR}/specs"    # ToC/checksums for specs
-mkdir -p "${COMMANDS_DIR}"
+# =============================================================================
+# Clean up legacy files from v2.0 (file-specific deletion)
+# NOTE: This uses file-name-based deletion because v2.0 has no identifiers.
+#       After identifier system is introduced, this code should be removed
+#       and replaced with identifier-based deletion.
+# =============================================================================
+LEGACY_CLEANED=0
+
+# commands/ - delete only doc-advisor commands (preserve user's custom commands)
+if [[ -f "${CLAUDE_DIR}/commands/create-rules_toc.md" ]]; then
+    rm -f "${CLAUDE_DIR}/commands/create-rules_toc.md"
+    echo -e "${GREEN}Removed legacy: commands/create-rules_toc.md${NC}"
+    LEGACY_CLEANED=1
+fi
+if [[ -f "${CLAUDE_DIR}/commands/create-specs_toc.md" ]]; then
+    rm -f "${CLAUDE_DIR}/commands/create-specs_toc.md"
+    echo -e "${GREEN}Removed legacy: commands/create-specs_toc.md${NC}"
+    LEGACY_CLEANED=1
+fi
+
+# v2.0 had config/docs/scripts in skills/doc-advisor/ - migrate if found
+LEGACY_SKILL_CONFIG="${SKILLS_DIR}/doc-advisor/config.yaml"
+if [[ -f "$LEGACY_SKILL_CONFIG" ]]; then
+    # Backup v2.0 config for potential migration
+    cp "$LEGACY_SKILL_CONFIG" "${SKILLS_DIR}/config.yaml.legacy.tmp"
+    MIGRATE_LEGACY_CONFIG=1
+    rm -f "$LEGACY_SKILL_CONFIG"
+    echo -e "${GREEN}Removed legacy: skills/doc-advisor/config.yaml (will migrate)${NC}"
+    LEGACY_CLEANED=1
+fi
+if [[ -d "${SKILLS_DIR}/doc-advisor/docs" ]]; then
+    rm -rf "${SKILLS_DIR}/doc-advisor/docs"
+    echo -e "${GREEN}Removed legacy: skills/doc-advisor/docs/${NC}"
+    LEGACY_CLEANED=1
+fi
+if [[ -d "${SKILLS_DIR}/doc-advisor/scripts" ]]; then
+    rm -rf "${SKILLS_DIR}/doc-advisor/scripts"
+    echo -e "${GREEN}Removed legacy: skills/doc-advisor/scripts/${NC}"
+    LEGACY_CLEANED=1
+fi
+
+# v3.0 moved docs to doc-advisor/ - clean old docs directory if it exists with outdated files
+# (scripts and config are handled by the copy process, only docs/ needs explicit cleanup)
+if [[ -d "${DOC_ADVISOR_DIR}/docs" ]]; then
+    rm -rf "${DOC_ADVISOR_DIR}/docs"
+    LEGACY_CLEANED=1
+fi
+
+if [[ $LEGACY_CLEANED -eq 1 ]]; then
+    echo ""
+fi
+
+mkdir -p "${DOC_ADVISOR_DIR}"
+mkdir -p "${DOC_ADVISOR_DIR}/toc/rules"    # ToC/checksums for rules
+mkdir -p "${DOC_ADVISOR_DIR}/toc/specs"    # ToC/checksums for specs
 mkdir -p "${AGENTS_DIR}"
 mkdir -p "${SKILLS_DIR}"
 
@@ -256,25 +305,101 @@ copy_dir_with_substitution() {
 echo "Copying templates..."
 echo ""
 
-# Copy commands
-echo "  commands/ ..."
-copy_dir_with_substitution "${SCRIPT_DIR}/templates/commands" "${COMMANDS_DIR}"
+# Check if config.yaml already exists (user may have customized it)
+EXISTING_CONFIG="${DOC_ADVISOR_DIR}/config.yaml"
+SKIP_CONFIG=0
 
-# Copy agents
+if [[ -f "$EXISTING_CONFIG" ]]; then
+    echo -e "${YELLOW}Existing config.yaml found: ${EXISTING_CONFIG}${NC}"
+    echo "  This file may contain your custom settings (exclude patterns, etc.)."
+    echo ""
+    echo "  Options:"
+    echo "    [o] Overwrite (backup to config.yaml.bak)"
+    echo "    [s] Skip (keep existing config)"
+    echo "    [m] Merge manually (show diff after setup)"
+    read -p "  Choice [s]: " CONFIG_CHOICE
+    CONFIG_CHOICE="${CONFIG_CHOICE:-s}"
+
+    case "$CONFIG_CHOICE" in
+        [Oo])
+            # Backup to skills/ dir (outside doc-advisor/ which will be deleted)
+            cp "$EXISTING_CONFIG" "${SKILLS_DIR}/config.yaml.bak.tmp"
+            RESTORE_BAK=1
+            echo -e "${GREEN}  Backup will be created: config.yaml.bak${NC}"
+            ;;
+        [Mm])
+            cp "$EXISTING_CONFIG" "${SKILLS_DIR}/config.yaml.old.tmp"
+            SHOW_CONFIG_DIFF=1
+            ;;
+        *)
+            SKIP_CONFIG=1
+            echo -e "${BLUE}  Keeping existing config.yaml${NC}"
+            ;;
+    esac
+    echo ""
+fi
+
+# Copy agents (overwrite only - preserve user's custom agents)
 echo "  agents/ ..."
+if [[ -d "${AGENTS_DIR}" ]]; then
+    # doc-advisor managed agents (will be overwritten)
+    MANAGED_AGENTS="rules-advisor.md specs-advisor.md rules-toc-updater.md specs-toc-updater.md"
+    # Check for non-managed agents and notify user
+    for agent in "${AGENTS_DIR}"/*.md; do
+        [[ -e "$agent" ]] || continue
+        name=$(basename "$agent")
+        if ! echo "$MANAGED_AGENTS" | grep -qw "$name"; then
+            echo -e "${BLUE}    Preserving: $name${NC}"
+        fi
+    done
+fi
 copy_dir_with_substitution "${SCRIPT_DIR}/templates/agents" "${AGENTS_DIR}"
 
-# Copy skills
-echo "  skills/ ..."
-copy_dir_with_substitution "${SCRIPT_DIR}/templates/skills" "${SKILLS_DIR}"
+# Copy skills/doc-advisor/SKILL.md (entry point only)
+echo "  skills/doc-advisor/ ..."
+DOC_ADVISOR_SKILL_DIR="${SKILLS_DIR}/doc-advisor"
 
-# Copy doc-advisor (docs + config.yaml)
+# Clean and copy SKILL.md only
+if [[ -d "${DOC_ADVISOR_SKILL_DIR}" ]]; then
+    rm -rf "${DOC_ADVISOR_SKILL_DIR}"
+fi
+mkdir -p "${DOC_ADVISOR_SKILL_DIR}"
+copy_and_substitute "${SCRIPT_DIR}/templates/skills/doc-advisor/SKILL.md" "${DOC_ADVISOR_SKILL_DIR}/SKILL.md"
+
+# Copy doc-advisor resources (config, docs, scripts)
 echo "  doc-advisor/ ..."
-copy_dir_with_substitution "${SCRIPT_DIR}/templates/doc-advisor" "${CONFIG_DIR}"
+
+# Backup config to temp location if skipping
+if [[ $SKIP_CONFIG -eq 1 ]]; then
+    cp "$EXISTING_CONFIG" "${DOC_ADVISOR_DIR}/config.yaml.tmp"
+fi
+
+# Copy templates/doc-advisor/ to .claude/doc-advisor/
+copy_dir_with_substitution "${SCRIPT_DIR}/templates/doc-advisor" "${DOC_ADVISOR_DIR}"
+
+# Restore config if skipped
+if [[ $SKIP_CONFIG -eq 1 ]]; then
+    mv "${DOC_ADVISOR_DIR}/config.yaml.tmp" "$EXISTING_CONFIG"
+fi
+
+# Move backup to final location (overwrite mode)
+if [[ "${RESTORE_BAK:-0}" == "1" ]] && [[ -f "${SKILLS_DIR}/config.yaml.bak.tmp" ]]; then
+    mv "${SKILLS_DIR}/config.yaml.bak.tmp" "${EXISTING_CONFIG}.bak"
+fi
+
+# Show diff if requested (merge mode)
+if [[ "${SHOW_CONFIG_DIFF:-0}" == "1" ]] && [[ -f "${SKILLS_DIR}/config.yaml.old.tmp" ]]; then
+    mv "${SKILLS_DIR}/config.yaml.old.tmp" "${EXISTING_CONFIG}.old"
+    echo ""
+    echo -e "${YELLOW}Config diff (old vs new):${NC}"
+    diff "${EXISTING_CONFIG}.old" "$EXISTING_CONFIG" || true
+    echo ""
+    echo -e "${YELLOW}Old config saved as: ${EXISTING_CONFIG}.old${NC}"
+fi
 
 echo ""
 echo "Generated configuration:"
-echo "  ${CONFIG_DIR}/config.yaml"
+echo "  ${DOC_ADVISOR_DIR}/config.yaml"
 
 echo ""
 echo -e "${GREEN}==========================================${NC}"
@@ -283,10 +408,9 @@ echo -e "${GREEN}==========================================${NC}"
 echo ""
 echo "Files created at:"
 echo "  ${CLAUDE_DIR}/"
-echo "    commands/          # Command files"
 echo "    agents/            # Agent definitions"
-echo "    skills/            # Skill modules"
-echo "    doc-advisor/       # Configuration"
+echo "    skills/            # Skill modules (inc. doc-advisor)"
+echo "    doc-advisor/       # Runtime output (ToC files)"
 # Save settings for next run
 cat > "$LAST_SETUP_FILE" << EOF
 # Last setup settings (auto-generated)
@@ -305,6 +429,6 @@ echo -e "  1. Verify ${BLUE}${RULES_DIR}${NC} and ${BLUE}${SPECS_DIR}${NC} direc
 echo "  2. Start Claude Code:"
 echo -e "     cd ${BLUE}${TARGET_DIR}${NC}"
 echo "     claude"
-echo -e "  3. Run ${YELLOW}/create-rules_toc --full${NC} for initial ToC generation"
-echo -e "  4. Run ${YELLOW}/create-specs_toc --full${NC} for initial ToC generation"
+echo -e "  3. Run ${YELLOW}/doc-advisor make-rules-toc --full${NC} for initial ToC generation"
+echo -e "  4. Run ${YELLOW}/doc-advisor make-specs-toc --full${NC} for initial ToC generation"
 echo ""

@@ -38,8 +38,8 @@ test_result() {
 # Setup test project
 cd "$TEST_PROJECT"
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 echo ""
@@ -50,7 +50,7 @@ import sys
 from pathlib import Path
 
 # Add scripts directory to path
-sys.path.insert(0, str(Path('.claude/skills/doc-advisor/scripts').resolve()))
+sys.path.insert(0, str(Path('.claude/doc-advisor/scripts').resolve()))
 
 from toc_utils import should_exclude
 

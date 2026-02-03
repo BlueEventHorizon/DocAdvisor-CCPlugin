@@ -64,6 +64,9 @@ run_test "Phase 3: Custom Directories" "test_custom_dirs.sh"
 # Phase 4: Edge cases
 run_test "Phase 4: Edge Cases" "test_edge_cases.sh"
 
+# Phase 5: Setup upgrade scenarios
+run_test "Phase 5: Setup Upgrade" "test_setup_upgrade.sh"
+
 # Count results
 PASS_COUNT=0
 FAIL_COUNT=0

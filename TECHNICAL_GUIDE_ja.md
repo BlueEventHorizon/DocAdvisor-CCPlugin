@@ -111,12 +111,15 @@ cd DocAdvisor-CC
 これにより、必要なファイルがプロジェクトにコピーされます：
 ```
 your-project/.claude/
-├── commands/          # コマンドファイル
 ├── agents/            # エージェント定義
-├── skills/            # スキルモジュール
-└── doc-advisor/
-    ├── config.yaml    # プロジェクト設定
-    └── docs/          # ToC フォーマット/ワークフロー文書
+├── skills/
+│   └── doc-advisor/
+│       └── SKILL.md   # エントリポイントのみ
+└── doc-advisor/       # すべてのリソースとランタイム出力
+    ├── config.yaml
+    ├── docs/
+    ├── scripts/
+    └── toc/           # ToC ファイル
 ```
 
 セットアップは対話形式で以下を聞いてきます：
@@ -150,12 +153,12 @@ make setup TARGET=/path/to/your-project  # ターゲット指定
 
 ```bash
 # 開発ドキュメント（rules/）の ToC 生成
-/create-rules_toc          # 差分更新（変更ファイルのみ処理）
-/create-rules_toc --full   # 全ファイル再生成
+/doc-advisor make-rules-toc          # 差分更新（変更ファイルのみ処理）
+/doc-advisor make-rules-toc --full   # 全ファイル再生成
 
 # 要件定義書・設計書（specs/）の ToC 生成
-/create-specs_toc          # 差分更新
-/create-specs_toc --full   # 全ファイル再生成
+/doc-advisor make-specs-toc          # 差分更新
+/doc-advisor make-specs-toc --full   # 全ファイル再生成
 ```
 
 ### Advisor エージェント
@@ -202,7 +205,7 @@ Task(subagent_type: specs-advisor, prompt: "画面遷移に関する要件定義
 ### ToC 生成フロー
 
 ```
-/create-*_toc
+/doc-advisor make-*-toc
         |
         v
 +-------------------------------------+
@@ -242,18 +245,18 @@ Task(subagent_type: *-advisor)
 ```
 DocAdvisor-CC/
 ├── templates/
-│   ├── commands/               # コマンドテンプレート
-│   │   ├── create-rules_toc.md
-│   │   └── create-specs_toc.md
 │   ├── agents/                 # エージェントテンプレート
 │   │   ├── rules-advisor.md
 │   │   ├── specs-advisor.md
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
-│   ├── skills/                 # スキルテンプレート
-│   │   └── doc-advisor/        # ToC 生成スクリプト
-│   └── doc-advisor/
-│       └── docs/               # ToC フォーマット/ワークフロー文書
+│   ├── skills/
+│   │   └── doc-advisor/
+│   │       └── SKILL.md        # エントリポイントのみ
+│   └── doc-advisor/            # ToC 生成リソース
+│       ├── config.yaml         # 設定テンプレート
+│       ├── docs/               # オーケストレータ、フォーマット、ワークフロー文書
+│       └── scripts/            # Python スクリプト
 ├── setup.sh                    # プロジェクトセットアップスクリプト
 ├── Makefile                    # ビルド自動化
 └── README.md
@@ -264,27 +267,27 @@ DocAdvisor-CC/
 ```
 your-project/
 ├── .claude/
-│   ├── commands/
-│   │   ├── create-rules_toc.md
-│   │   └── create-specs_toc.md
 │   ├── agents/
 │   │   ├── rules-advisor.md
 │   │   ├── specs-advisor.md
 │   │   ├── rules-toc-updater.md
 │   │   └── specs-toc-updater.md
 │   ├── skills/
-│   │   └── doc-advisor/        # ToC 生成スクリプト
-│   └── doc-advisor/
-│       ├── config.yaml
-│       ├── docs/               # ToC フォーマット/ワークフロー文書
-│       ├── rules/              # rules の生成成果物
-│       │   ├── rules_toc.yaml
-│       │   ├── .toc_checksums.yaml
-│       │   └── .toc_work/
-│       └── specs/              # specs の生成成果物
-│           ├── specs_toc.yaml
-│           ├── .toc_checksums.yaml
-│           └── .toc_work/
+│   │   └── doc-advisor/
+│   │       └── SKILL.md        # エントリポイントのみ
+│   └── doc-advisor/            # すべてのリソースとランタイム出力
+│       ├── config.yaml         # 設定
+│       ├── docs/               # オーケストレータ、フォーマット、ワークフロー文書
+│       ├── scripts/            # Python スクリプト
+│       └── toc/                # ランタイム出力
+│           ├── rules/          # rules の生成成果物
+│           │   ├── rules_toc.yaml
+│           │   ├── .toc_checksums.yaml
+│           │   └── .toc_work/
+│           └── specs/          # specs の生成成果物
+│               ├── specs_toc.yaml
+│               ├── .toc_checksums.yaml
+│               └── .toc_work/
 ├── rules/                      # Rules ドキュメント（設定可能）
 │   └── *.md                    # ドキュメントファイル
 └── specs/                      # Specs ドキュメント（設定可能）
@@ -302,9 +305,9 @@ your-project/
 # === rules 設定 ===
 rules:
   root_dir: rules
-  toc_file: .claude/doc-advisor/rules/rules_toc.yaml
-  checksums_file: .claude/doc-advisor/rules/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/rules/.toc_work/
+  toc_file: .claude/doc-advisor/toc/rules/rules_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/rules/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/rules/.toc_work/
 
   patterns:
     target_glob: "**/*.md"
@@ -319,9 +322,9 @@ rules:
 # === specs 設定 ===
 specs:
   root_dir: specs
-  toc_file: .claude/doc-advisor/specs/specs_toc.yaml
-  checksums_file: .claude/doc-advisor/specs/.toc_checksums.yaml
-  work_dir: .claude/doc-advisor/specs/.toc_work/
+  toc_file: .claude/doc-advisor/toc/specs/specs_toc.yaml
+  checksums_file: .claude/doc-advisor/toc/specs/.toc_checksums.yaml
+  work_dir: .claude/doc-advisor/toc/specs/.toc_work/
 
   patterns:
     target_dirs:
@@ -381,11 +384,12 @@ nano /path/to/your-project/.claude/doc-advisor/config.yaml
 ./setup.sh /path/to/your-project
 ```
 
-### コマンドが認識されない
+### スキルが認識されない
 
 ファイルが存在するか確認：
 ```bash
-ls -la /path/to/your-project/.claude/commands/
+ls -la /path/to/your-project/.claude/skills/doc-advisor/SKILL.md
+ls -la /path/to/your-project/.claude/doc-advisor/
 ls -la /path/to/your-project/.claude/agents/
 ```
 
@@ -393,15 +397,49 @@ ls -la /path/to/your-project/.claude/agents/
 
 1. ターゲットディレクトリがプロジェクトに存在するか確認
 2. 設定のパスが正しいか確認
-3. `.claude/doc-advisor/{rules,specs}/.toc_work/` で復旧を確認
+3. `.claude/doc-advisor/toc/{rules,specs}/.toc_work/` で復旧を確認
 
 ## v2.0（プラグインモード）からの移行
 
-プラグインモード（`--plugin-dir`）を使用していた場合：
+プラグインモード（`--plugin-dir`）を使用していた場合、setup.sh を実行してアップグレード：
 
-1. プロジェクトで setup.sh を実行して新しいファイルをインストール
-2. Claude Code 起動時に `--plugin-dir` フラグを削除
-3. `.claude/doc-advisor/` 内の既存の `config.yaml` は保持されます
+```bash
+./setup.sh /path/to/your-project
+```
+
+### アップグレード時の動作
+
+**自動削除**（doc-advisor のレガシーファイル）:
+- `.claude/commands/create-rules_toc.md`
+- `.claude/commands/create-specs_toc.md`
+- `.claude/skills/doc-advisor/`（クリーンアップ、SKILL.md のみ残る）
+
+**インストール**（新 v3.0 構造）:
+- `.claude/skills/doc-advisor/SKILL.md`（エントリポイント）
+- `.claude/doc-advisor/config.yaml`
+- `.claude/doc-advisor/docs/`
+- `.claude/doc-advisor/scripts/`
+- `.claude/doc-advisor/toc/rules/`（ToC 出力）
+- `.claude/doc-advisor/toc/specs/`（ToC 出力）
+
+**保持**（ユーザーのカスタムファイル）:
+- `.claude/commands/your-custom-command.md`（他のコマンド）
+- `.claude/agents/your-custom-agent.md`（doc-advisor 以外のエージェント）
+
+**config.yaml の処理**:
+- `.claude/doc-advisor/config.yaml` が既に存在する場合、以下を選択：
+  - `[o]` 上書き（config.yaml.bak にバックアップ）
+  - `[s]` スキップ（既存設定を保持）
+  - `[m]` 手動マージ（セットアップ後に差分表示）
+
+### アップグレード後
+
+1. Claude Code 起動時に `--plugin-dir` フラグを削除 - 全ファイルがプロジェクト内にあります。
+2. ToC ファイルを再生成（パスが変更されたため）：
+   ```bash
+   /doc-advisor make-rules-toc --full
+   /doc-advisor make-specs-toc --full
+   ```
 
 ## ライセンス
 

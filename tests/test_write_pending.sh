@@ -50,20 +50,20 @@ echo ""
 
 cd "$TEST_PROJECT"
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 echo ""
 
 # Ensure pending YAML exists
 echo "Generating pending YAML files..."
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
 echo ""
 
-RULES_PENDING=$(ls .claude/doc-advisor/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
-SPECS_PENDING=$(ls .claude/doc-advisor/specs/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
+RULES_PENDING=$(ls .claude/doc-advisor/toc/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
+SPECS_PENDING=$(ls .claude/doc-advisor/toc/specs/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
 
 if [[ -z "$RULES_PENDING" ]]; then
     echo -e "${RED}ERROR: No rules pending YAML found${NC}"
@@ -79,15 +79,15 @@ echo "Rules pending: $RULES_PENDING"
 echo "Specs pending: $SPECS_PENDING"
 echo ""
 
-WRITE_RULES="$TEST_PROJECT/.claude/skills/doc-advisor/scripts/write_rules_pending.py"
-WRITE_SPECS="$TEST_PROJECT/.claude/skills/doc-advisor/scripts/write_specs_pending.py"
+WRITE_RULES="$TEST_PROJECT/.claude/doc-advisor/scripts/write_rules_pending.py"
+WRITE_SPECS="$TEST_PROJECT/.claude/doc-advisor/scripts/write_specs_pending.py"
 
 echo "=================================================="
 echo "Test 2-1: write_rules_pending.py - Normal case"
 echo "=================================================="
 
 # Reset pending file first
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
 
 EXIT_CODE=0
 $PYTHON_CMD "$WRITE_RULES" \
@@ -117,7 +117,7 @@ echo "Test 2-2: write_rules_pending.py - Missing argument"
 echo "=================================================="
 
 # Reset pending file
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
 
 EXIT_CODE=0
 $PYTHON_CMD "$WRITE_RULES" \
@@ -140,7 +140,7 @@ echo "Test 2-3: write_rules_pending.py - Insufficient keywords"
 echo "=================================================="
 
 # Reset pending file
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || true
 
 EXIT_CODE=0
 $PYTHON_CMD "$WRITE_RULES" \
@@ -160,7 +160,7 @@ echo "Test 2-4: write_specs_pending.py - Normal case with doc_type"
 echo "=================================================="
 
 # Reset pending file
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
 
 EXIT_CODE=0
 $PYTHON_CMD "$WRITE_SPECS" \

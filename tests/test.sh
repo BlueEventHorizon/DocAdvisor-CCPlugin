@@ -57,8 +57,8 @@ echo "Test 2: Verify variable substitution"
 echo "=================================================="
 echo ""
 
-# Check PYTHON_PATH substitution
-PYTHON_PATH_IN_FILE=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "NOT_FOUND")
+# Check PYTHON_PATH substitution (now in orchestrator docs)
+PYTHON_PATH_IN_FILE=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "NOT_FOUND")
 
 if [[ "$PYTHON_PATH_IN_FILE" == "NOT_FOUND" ]] || [[ "$PYTHON_PATH_IN_FILE" == *"{{"* ]]; then
     echo -e "${RED}FAIL: PYTHON_PATH not substituted${NC}"
@@ -69,8 +69,8 @@ else
     echo "  Value: $PYTHON_PATH_IN_FILE"
 fi
 
-# Check RULES_DIR substitution
-if grep -q "{{RULES_DIR}}" .claude/commands/create-rules_toc.md 2>/dev/null; then
+# Check RULES_DIR substitution (in orchestrator docs)
+if grep -q "{{RULES_DIR}}" .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null; then
     echo -e "${RED}FAIL: RULES_DIR not substituted${NC}"
     exit 1
 else
@@ -84,15 +84,15 @@ echo "Test 3: Run create_pending_yaml_rules.py"
 echo "=================================================="
 echo ""
 
-# Get Python path from the substituted file
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from the orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 
 echo "Using Python: $PYTHON_CMD"
 echo ""
 
 # Run the script
-if $PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full; then
+if $PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full; then
     echo ""
     echo -e "${GREEN}PASS: create_pending_yaml_rules.py executed successfully${NC}"
 else
@@ -104,9 +104,9 @@ fi
 echo ""
 
 # Check if pending YAML was created
-if ls .claude/doc-advisor/rules/.toc_work/*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/rules/.toc_work/*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS: Pending YAML files created${NC}"
-    ls -la .claude/doc-advisor/rules/.toc_work/
+    ls -la .claude/doc-advisor/toc/rules/.toc_work/
 else
     echo -e "${YELLOW}WARN: No pending YAML files created (may be expected if no rules)${NC}"
 fi
@@ -118,7 +118,7 @@ echo "Test 4: Run create_pending_yaml_specs.py"
 echo "=================================================="
 echo ""
 
-if $PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full; then
+if $PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_specs.py --full; then
     echo ""
     echo -e "${GREEN}PASS: create_pending_yaml_specs.py executed successfully${NC}"
 else
@@ -130,9 +130,9 @@ fi
 echo ""
 
 # Check if pending YAML was created
-if ls .claude/doc-advisor/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS: Pending YAML files created${NC}"
-    ls -la .claude/doc-advisor/specs/.toc_work/
+    ls -la .claude/doc-advisor/toc/specs/.toc_work/
 else
     echo -e "${YELLOW}WARN: No pending YAML files created (may be expected if no specs)${NC}"
 fi
