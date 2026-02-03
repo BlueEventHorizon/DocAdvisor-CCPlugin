@@ -4,7 +4,7 @@ description: Specialized agent that generates ToC entries for a single requireme
 model: {{AGENT_MODEL}}
 tools: Read, Bash
 color: cyan
-doc-advisor-version: "3.1"
+doc-advisor-version-xK9XmQ: "3.1"
 ---
 
 ## Overview

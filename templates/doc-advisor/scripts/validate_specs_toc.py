@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# doc-advisor-version-xK9XmQ: 3.1
 """
 specs_toc.yaml 検査スクリプト
 

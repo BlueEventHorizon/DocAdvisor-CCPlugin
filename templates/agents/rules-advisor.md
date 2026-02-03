@@ -3,7 +3,7 @@ name: rules-advisor
 description: Agent that identifies development documents ({{RULES_DIR}}) needed for a task
 model: {{AGENT_MODEL}}
 color: orange
-doc-advisor-version: "3.1"
+doc-advisor-version-xK9XmQ: "3.1"
 ---
 
 ## Role
