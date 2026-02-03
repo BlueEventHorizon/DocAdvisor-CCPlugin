@@ -4,6 +4,7 @@ description: Update rules search index (ToC) after modifying, creating, or delet
 allowed-tools: Bash, Read, Task
 user-invocable: true
 argument-hint: "[--full]"
+doc-advisor-version: "3.1"
 ---
 
 # create-rules-toc

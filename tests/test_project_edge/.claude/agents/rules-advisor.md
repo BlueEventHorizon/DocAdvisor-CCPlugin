@@ -3,6 +3,7 @@ name: rules-advisor
 description: Agent that identifies development documents (rules) needed for a task
 model: opus
 color: orange
+doc-advisor-version: "3.1"
 ---
 
 ## Role

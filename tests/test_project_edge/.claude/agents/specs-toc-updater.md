@@ -2,8 +2,9 @@
 name: specs-toc-updater
 description: Specialized agent that generates ToC entries for a single requirement/design document. Processes individual YAML files in .claude/doc-advisor/toc/specs/.toc_work/.
 model: opus
-color: cyan
 tools: Read, Bash
+color: cyan
+doc-advisor-version: "3.1"
 ---
 
 ## Overview

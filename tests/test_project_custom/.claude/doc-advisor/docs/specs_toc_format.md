@@ -1,3 +1,7 @@
+---
+doc-advisor-version: "3.1"
+---
+
 # specs_toc.yaml Format Definition
 
 ## Purpose

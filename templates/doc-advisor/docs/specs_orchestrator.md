@@ -1,3 +1,12 @@
+---
+name: specs_orchestrator
+description: Orchestrator workflow for specs_toc.yaml generation
+applicable_when:
+  - Executing /create-specs-toc skill
+  - Coordinating specs ToC generation process
+doc-advisor-version: "3.1"
+---
+
 # specs_toc.yaml Orchestrator Workflow
 
 Orchestrator workflow to generate/update `.claude/doc-advisor/toc/specs/specs_toc.yaml`.

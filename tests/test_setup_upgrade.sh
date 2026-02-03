@@ -229,6 +229,80 @@ test_result "specs_toc.yaml preserved" "0" "$([[ -f "$TEST_PROJECT/.claude/doc-a
 echo ""
 
 # ==================================================
+echo "=================================================="
+echo "Test 9: Version-based protection (current version protected, no identifier deleted)"
+echo "=================================================="
+
+setup_test_project
+
+# First install
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Create legacy file WITH CURRENT version (should be protected)
+mkdir -p "$TEST_PROJECT/.claude/commands"
+cat > "$TEST_PROJECT/.claude/commands/create-rules_toc.md" << 'EOF'
+---
+doc-advisor-version: "3.1"
+name: protected-command
+---
+# This file has CURRENT version and should be protected
+EOF
+
+# Create legacy file WITHOUT identifier (should be deleted)
+echo "# No identifier - legacy file" > "$TEST_PROJECT/.claude/commands/create-specs_toc.md"
+
+# Run setup again
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\ns" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: file with current version is protected, file without is deleted
+test_result "File with current version protected" "0" "$([[ -f "$TEST_PROJECT/.claude/commands/create-rules_toc.md" ]] && echo 0 || echo 1)"
+test_result "File without identifier deleted" "1" "$([[ -f "$TEST_PROJECT/.claude/commands/create-specs_toc.md" ]] && echo 0 || echo 1)"
+echo ""
+
+# ==================================================
+echo "=================================================="
+echo "Test 10: Old version is deleted, current version is protected"
+echo "=================================================="
+
+setup_test_project
+
+# First install
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Create skills/doc-advisor/ with OLD version (should be deleted)
+mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor"
+cat > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" << 'EOF'
+---
+doc-advisor-version: "3.0"
+name: doc-advisor
+---
+# This skill has OLD version and should be deleted
+EOF
+
+# Run setup again
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\ns" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: skills/doc-advisor/ with old version is deleted
+test_result "skills/doc-advisor/ with old version deleted" "1" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor" ]] && echo 0 || echo 1)"
+
+# Now test current version protection
+mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor"
+cat > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" << 'EOF'
+---
+doc-advisor-version: "3.1"
+name: doc-advisor
+---
+# This skill has CURRENT version and should be protected
+EOF
+
+# Run setup again
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\ns" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: skills/doc-advisor/ with current version is protected
+test_result "skills/doc-advisor/ with current version protected" "0" "$([[ -d "$TEST_PROJECT/.claude/skills/doc-advisor" ]] && echo 0 || echo 1)"
+echo ""
+
+# ==================================================
 # Cleanup
 cleanup
 

@@ -1,3 +1,12 @@
+---
+name: specs_toc_format
+description: Format definition for specs_toc.yaml (Single Source of Truth)
+applicable_when:
+  - Creating or updating specs ToC entries
+  - Validating specs_toc.yaml structure
+doc-advisor-version: "3.1"
+---
+
 # specs_toc.yaml Format Definition
 
 ## Purpose

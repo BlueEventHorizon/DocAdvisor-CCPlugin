@@ -1,3 +1,12 @@
+---
+name: rules_toc_format
+description: Format definition for rules_toc.yaml (Single Source of Truth)
+applicable_when:
+  - Creating or updating rules ToC entries
+  - Validating rules_toc.yaml structure
+doc-advisor-version: "3.1"
+---
+
 # rules_toc.yaml Format Definition
 
 ## Purpose

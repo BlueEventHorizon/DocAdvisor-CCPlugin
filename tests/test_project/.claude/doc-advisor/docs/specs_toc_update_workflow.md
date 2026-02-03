@@ -5,6 +5,7 @@ applicable_when:
   - Running as specs-toc-updater Agent
   - Executing /create-specs-toc
   - After adding, modifying, or deleting requirement/design documents
+doc-advisor-version: "3.1"
 ---
 
 # specs_toc.yaml Update Workflow

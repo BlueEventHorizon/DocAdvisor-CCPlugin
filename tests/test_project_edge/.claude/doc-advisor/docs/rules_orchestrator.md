@@ -1,3 +1,7 @@
+---
+doc-advisor-version: "3.1"
+---
+
 # rules_toc.yaml Orchestrator Workflow
 
 Orchestrator workflow to generate/update `.claude/doc-advisor/toc/rules/rules_toc.yaml`.

@@ -3,6 +3,7 @@ name: specs-advisor
 description: Agent that identifies requirement and design documents needed for a task
 model: opus
 color: cyan
+doc-advisor-version: "3.1"
 ---
 
 ## Role

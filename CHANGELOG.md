@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [3.1.0] - 2026-02-04
 
+### Added
+- **Version identifier**: All managed files now include `doc-advisor-version: "3.1"` for future upgrade detection (REQ-002-NF-02)
+- **Identifier-based protection**: Legacy cleanup now checks for `doc-advisor-version` before deletion - files with identifier are protected
+
 ### Changed
 - **Skill split**: Single `doc-advisor` skill split into two independent skills:
   - `/create-rules-toc [--full]` - Generate rules ToC

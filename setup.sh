@@ -192,23 +192,56 @@ AGENTS_DIR="${CLAUDE_DIR}/agents"
 SKILLS_DIR="${CLAUDE_DIR}/skills"
 
 # =============================================================================
-# Clean up legacy files from v2.0 (file-specific deletion)
-# NOTE: This uses file-name-based deletion because v2.0 has no identifiers.
-#       After identifier system is introduced, this code should be removed
-#       and replaced with identifier-based deletion.
+# Version identifier functions
+# =============================================================================
+DOC_ADVISOR_VERSION="3.1"
+
+# Extract doc-advisor-version from a file (YAML frontmatter or comment)
+# Returns: version string or empty if not found
+get_doc_advisor_version() {
+    local file="$1"
+    if [[ -f "$file" ]]; then
+        # Match: doc-advisor-version: "3.1" or # doc-advisor-version: 3.1
+        grep -E '^(#\s*)?doc-advisor-version:\s*' "$file" 2>/dev/null | \
+            head -1 | sed -E 's/^(#[[:space:]]*)?doc-advisor-version:[[:space:]]*"?([^"]*)"?.*/\2/'
+    fi
+}
+
+# Check if file has CURRENT doc-advisor-version
+# Returns: 0 (true) if version matches current, 1 (false) otherwise
+# - No identifier = legacy (return 1)
+# - Old version = legacy (return 1)
+# - Current version = protected (return 0)
+has_current_doc_advisor_version() {
+    local file="$1"
+    local version
+    version=$(get_doc_advisor_version "$file")
+    [[ "$version" == "$DOC_ADVISOR_VERSION" ]]
+}
+
+# =============================================================================
+# Clean up legacy files (hybrid: file-name check + version protection)
+# - Known legacy file names are checked
+# - Files with CURRENT doc-advisor-version are protected (not deleted)
+# - Files with OLD version or NO identifier are deleted
 # =============================================================================
 LEGACY_CLEANED=0
 
 # commands/ - delete only doc-advisor commands (preserve user's custom commands)
+# Skip if file has CURRENT doc-advisor-version (protected)
 if [[ -f "${CLAUDE_DIR}/commands/create-rules_toc.md" ]]; then
-    rm -f "${CLAUDE_DIR}/commands/create-rules_toc.md"
-    echo -e "${GREEN}Removed legacy: commands/create-rules_toc.md${NC}"
-    LEGACY_CLEANED=1
+    if ! has_current_doc_advisor_version "${CLAUDE_DIR}/commands/create-rules_toc.md"; then
+        rm -f "${CLAUDE_DIR}/commands/create-rules_toc.md"
+        echo -e "${GREEN}Removed legacy: commands/create-rules_toc.md${NC}"
+        LEGACY_CLEANED=1
+    fi
 fi
 if [[ -f "${CLAUDE_DIR}/commands/create-specs_toc.md" ]]; then
-    rm -f "${CLAUDE_DIR}/commands/create-specs_toc.md"
-    echo -e "${GREEN}Removed legacy: commands/create-specs_toc.md${NC}"
-    LEGACY_CLEANED=1
+    if ! has_current_doc_advisor_version "${CLAUDE_DIR}/commands/create-specs_toc.md"; then
+        rm -f "${CLAUDE_DIR}/commands/create-specs_toc.md"
+        echo -e "${GREEN}Removed legacy: commands/create-specs_toc.md${NC}"
+        LEGACY_CLEANED=1
+    fi
 fi
 
 # v2.0 had config/docs/scripts in skills/doc-advisor/ - migrate if found
@@ -240,10 +273,13 @@ if [[ -d "${DOC_ADVISOR_DIR}/docs" ]]; then
 fi
 
 # v3.0 unified skill → v3.1 split skills (create-rules-toc, create-specs-toc)
+# Skip if SKILL.md has doc-advisor-version identifier (means it's current version)
 if [[ -d "${SKILLS_DIR}/doc-advisor" ]]; then
-    rm -rf "${SKILLS_DIR}/doc-advisor"
-    echo -e "${GREEN}Removed legacy: skills/doc-advisor/${NC}"
-    LEGACY_CLEANED=1
+    if ! has_current_doc_advisor_version "${SKILLS_DIR}/doc-advisor/SKILL.md"; then
+        rm -rf "${SKILLS_DIR}/doc-advisor"
+        echo -e "${GREEN}Removed legacy: skills/doc-advisor/${NC}"
+        LEGACY_CLEANED=1
+    fi
 fi
 
 if [[ $LEGACY_CLEANED -eq 1 ]]; then

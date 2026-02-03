@@ -1,3 +1,7 @@
+---
+doc-advisor-version: "3.1"
+---
+
 # specs_toc.yaml Orchestrator Workflow
 
 Orchestrator workflow to generate/update `.claude/doc-advisor/toc/specs/specs_toc.yaml`.
