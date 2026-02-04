@@ -7,6 +7,11 @@
 /specs
 /meta
 
-# Python cache
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Claude Code
+
+.claude/settings.local.json
