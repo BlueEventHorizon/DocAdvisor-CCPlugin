@@ -1,5 +1,5 @@
 #!/bin/bash
-# Doc Advisor Setup Script (v3.0)
+# Doc Advisor Setup Script (v3.2)
 #
 # Copies all templates to target project and creates configuration
 #
@@ -50,7 +50,7 @@ TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
-            echo "Doc Advisor Setup Script (v3.0)"
+            echo "Doc Advisor Setup Script (v3.2)"
             echo ""
             echo "Usage:"
             echo "  ./setup.sh TARGET_DIR    # Setup for specified project"
@@ -87,7 +87,7 @@ done
 
 # Interactive prompt if not specified
 if [[ -z "$TARGET_DIR" ]]; then
-    echo "Doc Advisor Setup Script (v3.0)"
+    echo "Doc Advisor Setup Script (v3.2)"
     echo ""
     if [[ -n "$DEFAULT_TARGET_DIR" ]]; then
         read -p "Enter target project directory [${DEFAULT_TARGET_DIR}]: " TARGET_DIR
@@ -109,7 +109,7 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 }
 
 echo -e "${GREEN}==========================================${NC}"
-echo -e "${GREEN}Doc Advisor Setup (v3.0)${NC}"
+echo -e "${GREEN}Doc Advisor Setup (v3.2)${NC}"
 echo -e "${GREEN}==========================================${NC}"
 echo ""
 echo "Target project: ${TARGET_DIR}"

@@ -433,7 +433,7 @@ If you were using the plugin mode (`--plugin-dir`), run setup.sh to upgrade:
 - `.claude/commands/create-specs_toc.md`
 - `.claude/skills/doc-advisor/` (removed, replaced with split skills)
 
-**Installed** (new v3.0 structure):
+**Installed** (v3.1+ structure):
 - `.claude/skills/create-rules-toc/SKILL.md` (rules ToC generation)
 - `.claude/skills/create-specs-toc/SKILL.md` (specs ToC generation)
 - `.claude/doc-advisor/config.yaml`

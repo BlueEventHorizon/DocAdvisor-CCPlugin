@@ -29,6 +29,7 @@ Key features:
 - **Incremental updates**: SHA-256 change detection
 - **Parallel processing**: Up to 5 concurrent workers
 - **Interruption recovery**: Preserve completed work and resume
+- **Symlink support**: Include external documentation via symbolic links (v3.2+)
 
 For full details, see [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md).
 

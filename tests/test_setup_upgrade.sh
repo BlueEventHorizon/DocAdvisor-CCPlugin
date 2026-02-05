@@ -97,7 +97,7 @@ echo ""
 
 # ==================================================
 echo "=================================================="
-echo "Test 3: v3.1 structure verification (split skills)"
+echo "Test 3: v3.2 structure verification (split skills)"
 echo "=================================================="
 
 setup_test_project
