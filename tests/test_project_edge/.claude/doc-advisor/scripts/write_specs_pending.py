@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# doc-advisor-version-xK9XmQ: 3.2
 """
 pending YAML 書き込みスクリプト（specs 用）
 

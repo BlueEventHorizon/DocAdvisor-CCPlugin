@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# doc-advisor-version-xK9XmQ: 3.2
 """
 ToC Auto-Generation Common Utilities
 
@@ -7,6 +8,8 @@ Common functions used by merge-rules-toc, merge-specs-toc, create-toc-checksums.
 Uses only standard library.
 """
 
+import fnmatch
+import os
 import re
 import shutil
 from pathlib import Path
@@ -608,3 +611,73 @@ def should_exclude(filepath, root_dir, exclude_patterns):
             if normalized in dir_parts:
                 return True
     return False
+
+
+def rglob_follow_symlinks(root_dir, pattern):
+    """
+    シンボリックリンクを follow して再帰的にファイルを検索する。
+
+    inode を追跡してシンボリックリンクループを防止し、
+    同じファイルへの複数パスを重複排除する。
+
+    Args:
+        root_dir: 検索開始ディレクトリ (Path or str)
+        pattern: glob パターン (例: "*.md", "**/*.md")
+
+    Yields:
+        Path: マッチしたファイルパス
+
+    Note:
+        - シンボリックリンクのループを検出して無限再帰を防止
+        - 同じファイルへの複数パス（シンボリックリンク経由）は一度だけ yield
+        - "**/" を含むパターンは再帰的に検索、含まないパターンは直下のみ
+    """
+    root_dir = Path(root_dir)
+    seen_inodes = set()
+
+    # パターンを解析
+    # "**/*.md" -> 再帰的に検索、"*.md" -> 直下のみ
+    if '**' in pattern:
+        # "**/*.md" -> "*.md", "**/*.yaml" -> "*.yaml"
+        file_pattern = pattern.replace('**/', '').replace('**', '')
+        if not file_pattern:
+            file_pattern = '*'
+        recursive = True
+    else:
+        file_pattern = pattern
+        recursive = False
+
+    for dirpath, dirnames, filenames in os.walk(root_dir, followlinks=True):
+        current_path = Path(dirpath)
+
+        # ディレクトリの inode をチェック（ループ防止）
+        try:
+            stat_info = current_path.stat()
+            dir_inode = (stat_info.st_dev, stat_info.st_ino)
+            if dir_inode in seen_inodes:
+                # シンボリックリンクループを検出、このディレクトリをスキップ
+                dirnames.clear()  # サブディレクトリへの再帰を防止
+                continue
+            seen_inodes.add(dir_inode)
+        except OSError:
+            # stat に失敗した場合はスキップ
+            continue
+
+        # ファイルをマッチング
+        for filename in filenames:
+            if fnmatch.fnmatch(filename, file_pattern):
+                filepath = current_path / filename
+                # ファイルの inode もチェック（同じファイルへの複数パスを防止）
+                try:
+                    file_stat = filepath.stat()
+                    file_inode = (file_stat.st_dev, file_stat.st_ino)
+                    if file_inode in seen_inodes:
+                        continue
+                    seen_inodes.add(file_inode)
+                except OSError:
+                    continue
+                yield filepath
+
+        # 非再帰モードの場合は最初のディレクトリのみ
+        if not recursive:
+            break

@@ -194,7 +194,7 @@ SKILLS_DIR="${CLAUDE_DIR}/skills"
 # =============================================================================
 # Version identifier functions
 # =============================================================================
-DOC_ADVISOR_VERSION="3.1"
+DOC_ADVISOR_VERSION="3.2"
 # Unique identifier key: doc-advisor-version-xK9XmQ
 # Note: xK9XmQ is a permanent, fixed string to prevent false matches with user files
 
@@ -203,7 +203,7 @@ DOC_ADVISOR_VERSION="3.1"
 get_doc_advisor_version() {
     local file="$1"
     if [[ -f "$file" ]]; then
-        # Match: doc-advisor-version-xK9XmQ: "3.1" or # doc-advisor-version-xK9XmQ: 3.1
+        # Match: doc-advisor-version-xK9XmQ: "3.2" or # doc-advisor-version-xK9XmQ: 3.2
         grep -E '^(#[[:space:]]*)?doc-advisor-version-xK9XmQ:[[:space:]]*' "$file" 2>/dev/null | \
             head -1 | sed -E 's/^(#[[:space:]]*)?doc-advisor-version-xK9XmQ:[[:space:]]*"?([^"]*)"?.*/\2/'
     fi

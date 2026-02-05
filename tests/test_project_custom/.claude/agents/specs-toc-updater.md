@@ -4,7 +4,7 @@ description: Specialized agent that generates ToC entries for a single requireme
 model: sonnet
 tools: Read, Bash
 color: cyan
-doc-advisor-version: "3.1"
+doc-advisor-version-xK9XmQ: 3.2"
 ---
 
 ## Overview

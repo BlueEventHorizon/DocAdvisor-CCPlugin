@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.1
+# doc-advisor-version-xK9XmQ: 3.2
 """
 rules_toc.yaml Merge Script (standard library only)
 
@@ -30,6 +30,7 @@ from toc_utils import (
     should_exclude,
     resolve_config_path,
     get_system_exclude_patterns,
+    rglob_follow_symlinks,
 )
 
 # Global configuration (initialized in init_config())
@@ -136,10 +137,10 @@ def load_existing_toc(toc_path):
 
 
 def get_existing_files():
-    """Get list of currently existing files with RULES_DIR prefix"""
+    """Get list of currently existing files with RULES_DIR prefix (symlink-aware)"""
     files = set()
     target_glob = PATTERNS_CONFIG.get('target_glob', '**/*.md')
-    for filepath in RULES_DIR.glob(target_glob):
+    for filepath in rglob_follow_symlinks(RULES_DIR, target_glob):
         if should_exclude(filepath, RULES_DIR, EXCLUDE_PATTERNS):
             continue
         rel_path = str(filepath.relative_to(RULES_DIR))

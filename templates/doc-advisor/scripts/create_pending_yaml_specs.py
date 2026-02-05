@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# doc-advisor-version-xK9XmQ: 3.1
+# doc-advisor-version-xK9XmQ: 3.2
 """
 Generate pending YAML templates in .claude/doc-advisor/toc/specs/.toc_work/
 
@@ -18,7 +18,7 @@ import hashlib
 import re
 from pathlib import Path
 
-from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns
+from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks
 
 # Global configuration (initialized in init_config())
 CONFIG = None
@@ -92,10 +92,10 @@ def is_target_dir(filepath):
 
 
 def get_all_md_files():
-    """Get list of target .md files"""
+    """Get list of target .md files (symlink-aware)"""
     md_files = []
 
-    for filepath in SPECS_DIR.rglob("*.md"):
+    for filepath in rglob_follow_symlinks(SPECS_DIR, "**/*.md"):
         if should_exclude(filepath, SPECS_DIR, EXCLUDE_PATTERNS):
             continue
         if not is_target_dir(filepath):

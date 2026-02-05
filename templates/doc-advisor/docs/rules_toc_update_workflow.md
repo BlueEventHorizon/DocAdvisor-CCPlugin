@@ -5,7 +5,7 @@ applicable_when:
   - Running as rules-toc-updater Agent
   - Executing /create-rules-toc
   - After adding, modifying, or deleting rule/workflow/format documents
-doc-advisor-version-xK9XmQ: "3.1"
+doc-advisor-version-xK9XmQ: 3.2"
 ---
 
 # rules_toc.yaml Update Workflow

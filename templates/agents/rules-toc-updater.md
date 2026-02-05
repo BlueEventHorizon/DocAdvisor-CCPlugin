@@ -4,7 +4,7 @@ description: Specialized agent that generates ToC entries for a single rule docu
 model: {{AGENT_MODEL}}
 color: orange
 tools: Read, Bash
-doc-advisor-version-xK9XmQ: "3.1"
+doc-advisor-version-xK9XmQ: 3.2"
 ---
 
 ## Overview

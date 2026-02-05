@@ -1,4 +1,4 @@
-# Doc Advisor (v3.0)
+# Doc Advisor (v3.2)
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -84,12 +84,24 @@ The `plan` directory is excluded from ToC indexing:
 
 | Process | Executor | Speed |
 |---------|----------|-------|
-| Recursive search | Python (`rglob`) | Fast |
+| Recursive search | Python (`os.walk`) | Fast |
 | Change detection | Python (SHA-256) | Fast |
 | Content analysis | Claude (LLM) | **Slow** |
 | Merge | Python | Fast |
 
 The bottleneck is LLM content analysis. Incremental mode (default) optimizes by processing only changed files.
+
+#### Symlink Support (v3.2+)
+
+All scripts follow symbolic links when scanning directories. This allows you to include external documentation by creating symlinks:
+
+```bash
+# Example: Include external docs via symlink
+ln -s /path/to/external/docs rules/external
+```
+
+- Symlink loops are detected and prevented (inode tracking)
+- Duplicate files via multiple symlinks are processed only once
 
 ## Installation
 

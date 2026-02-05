@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.1
+# doc-advisor-version-xK9XmQ: 3.2
 """
 .toc_checksums.yaml 生成スクリプト（統合版）
 
@@ -17,7 +17,7 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
-from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns
+from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks
 
 
 def calculate_file_hash(filepath):
@@ -39,18 +39,18 @@ def calculate_file_hash(filepath):
 
 
 def find_md_files_rules(root_dir, exclude_patterns):
-    """rules/ 配下の全 .md ファイルを検索"""
+    """rules/ 配下の全 .md ファイルを検索（シンボリックリンク対応）"""
     md_files = []
-    for filepath in root_dir.rglob("*.md"):
+    for filepath in rglob_follow_symlinks(root_dir, "**/*.md"):
         if not should_exclude(filepath, root_dir, exclude_patterns):
             md_files.append(filepath)
     return sorted(md_files)
 
 
 def find_md_files_specs(root_dir, exclude_patterns, target_dir_names):
-    """specs/ 配下の対象ディレクトリの .md ファイルを検索"""
+    """specs/ 配下の対象ディレクトリの .md ファイルを検索（シンボリックリンク対応）"""
     md_files = []
-    for filepath in root_dir.rglob("*.md"):
+    for filepath in rglob_follow_symlinks(root_dir, "**/*.md"):
         if should_exclude(filepath, root_dir, exclude_patterns):
             continue
         # パスのどこかに target_dirs のディレクトリ名が含まれるかチェック

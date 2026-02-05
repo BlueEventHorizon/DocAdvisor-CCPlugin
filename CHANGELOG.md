@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.2.0] - 2026-02-05
+
+### Added
+- **Symlink support**: All scripts now follow symbolic links when scanning `rules/` and `specs/` directories
+  - New `rglob_follow_symlinks()` function in `toc_utils.py`
+  - Inode tracking prevents infinite loops from circular symlinks
+  - Duplicate detection avoids processing the same file multiple times via different symlink paths
+- **Symlink tests**: New `tests/test_symlink.sh` for comprehensive symlink handling verification
+
+### Changed
+- **Version identifier**: Updated from `3.1` to `3.2` across all managed files
+
+### Fixed
+- Python's `Path.rglob()` and `Path.glob()` do not follow symlinks by default - now using `os.walk(followlinks=True)` wrapped in `rglob_follow_symlinks()`
+
+### Scripts modified
+- `create_checksums.py` - `find_md_files_rules()`, `find_md_files_specs()`
+- `create_pending_yaml_rules.py` - `get_all_md_files()`
+- `create_pending_yaml_specs.py` - `get_all_md_files()`
+- `merge_rules_toc.py` - `get_existing_files()`
+- `merge_specs_toc.py` - `get_existing_files()`
+
+---
+
 ## [3.1.0] - 2026-02-04
 
 ### Added
@@ -181,22 +205,37 @@ DocAdvisor-CC/  (plugin directory)
 
 ## Version Comparison
 
-| Feature | v1.x | v2.0 | v3.0 | v3.1 |
-|---------|------|------|------|------|
-| Installation | Plugin mode | Project-based | Project-based | Project-based |
-| Commands | `/create-*_toc` | `/create-*_toc` | `/doc-advisor make-*-toc` | `/create-rules-toc`, `/create-specs-toc` |
-| Config location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
-| Docs/Scripts location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
-| ToC output location | Plugin dir | `.claude/doc-advisor/rules/` | `.claude/doc-advisor/toc/rules/` | `.claude/doc-advisor/toc/rules/` |
-| Auto-trigger | No | No | Yes | Yes |
-| Parallel processing | No | Yes | Yes | Yes |
-| Incremental updates | No | Yes | Yes | Yes |
-| Custom directories | No | Yes | Yes | Yes |
-| Upgrade support | - | - | Yes | Yes |
+| Feature | v1.x | v2.0 | v3.0 | v3.1 | v3.2 |
+|---------|------|------|------|------|------|
+| Installation | Plugin mode | Project-based | Project-based | Project-based | Project-based |
+| Commands | `/create-*_toc` | `/create-*_toc` | `/doc-advisor make-*-toc` | `/create-rules-toc`, `/create-specs-toc` | `/create-rules-toc`, `/create-specs-toc` |
+| Config location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
+| Docs/Scripts location | Plugin dir | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` | `.claude/doc-advisor/` |
+| ToC output location | Plugin dir | `.claude/doc-advisor/rules/` | `.claude/doc-advisor/toc/rules/` | `.claude/doc-advisor/toc/rules/` | `.claude/doc-advisor/toc/rules/` |
+| Auto-trigger | No | No | Yes | Yes | Yes |
+| Parallel processing | No | Yes | Yes | Yes | Yes |
+| Incremental updates | No | Yes | Yes | Yes | Yes |
+| Custom directories | No | Yes | Yes | Yes | Yes |
+| Upgrade support | - | - | Yes | Yes | Yes |
+| Symlink support | No | No | No | No | Yes |
 
 ---
 
 ## Upgrade Path
+
+### v3.1 → v3.2
+
+Run `setup.sh` on your project:
+
+```bash
+./setup.sh /path/to/your-project
+```
+
+**Automatic changes:**
+- All scripts updated with symlink support
+- Version identifier updated to `3.2`
+
+**No command changes** - same commands as v3.1.
 
 ### v3.0 → v3.1
 

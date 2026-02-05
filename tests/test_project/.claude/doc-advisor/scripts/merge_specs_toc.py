@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# doc-advisor-version-xK9XmQ: 3.2
 """
 specs_toc.yaml Merge Script (standard library only)
 
@@ -31,6 +32,7 @@ from toc_utils import (
     resolve_config_path,
     get_default_target_dirs,
     get_system_exclude_patterns,
+    rglob_follow_symlinks,
 )
 
 # Global configuration (initialized in init_config())
@@ -208,9 +210,9 @@ def is_target_dir(filepath):
 
 
 def get_existing_files():
-    """Get list of currently existing files with SPECS_DIR prefix"""
+    """Get list of currently existing files with SPECS_DIR prefix (symlink-aware)"""
     files = set()
-    for filepath in SPECS_DIR.rglob("*.md"):
+    for filepath in rglob_follow_symlinks(SPECS_DIR, "**/*.md"):
         if should_exclude(filepath, SPECS_DIR, EXCLUDE_PATTERNS):
             continue
         if not is_target_dir(filepath):

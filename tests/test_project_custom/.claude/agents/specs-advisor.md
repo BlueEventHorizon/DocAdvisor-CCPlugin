@@ -3,7 +3,7 @@ name: specs-advisor
 description: Agent that identifies requirement and design documents needed for a task
 model: sonnet
 color: cyan
-doc-advisor-version: "3.1"
+doc-advisor-version-xK9XmQ: 3.2"
 ---
 
 ## Role

@@ -4,7 +4,7 @@ description: Orchestrator workflow for specs_toc.yaml generation
 applicable_when:
   - Executing /create-specs-toc skill
   - Coordinating specs ToC generation process
-doc-advisor-version-xK9XmQ: "3.1"
+doc-advisor-version-xK9XmQ: 3.2"
 ---
 
 # specs_toc.yaml Orchestrator Workflow
