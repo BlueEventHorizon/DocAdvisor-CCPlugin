@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.2
+# doc-advisor-version-xK9XmQ: 3.3
 """
 specs_toc.yaml Merge Script (standard library only)
 
@@ -125,6 +125,14 @@ def write_yaml_output(docs, output_path):
             lines.append("    keywords:")
             for kw in entry['keywords']:
                 lines.append(f"      - {yaml_escape(kw)}")
+        # references フィールド（空配列許容）
+        if 'references' in entry:
+            if entry['references']:
+                lines.append("    references:")
+                for ref in entry['references']:
+                    lines.append(f"      - {yaml_escape(ref)}")
+            else:
+                lines.append("    references: []")
 
     try:
         with open(output_path, 'w', encoding='utf-8') as f:

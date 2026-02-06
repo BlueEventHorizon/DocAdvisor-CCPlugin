@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.2
+# doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}
 """
 .toc_checksums.yaml 生成スクリプト（統合版）
 

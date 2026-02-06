@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.2
+# doc-advisor-version-xK9XmQ: 3.3
 """
 rules_toc.yaml Merge Script (standard library only)
 

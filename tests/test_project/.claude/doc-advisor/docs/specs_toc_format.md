@@ -4,7 +4,7 @@ description: Format definition for specs_toc.yaml (Single Source of Truth)
 applicable_when:
   - Creating or updating specs ToC entries
   - Validating specs_toc.yaml structure
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: 3.3"
 ---
 
 # specs_toc.yaml Format Definition
@@ -32,58 +32,9 @@ The quality of this file determines task execution success. **Missing informatio
 - **After colon**: Always one space (`key: value`)
 - **Arrays**: Hyphen + space (`- item`)
 - **No null**: All fields must be filled
-- **No empty arrays**: `[]` is not allowed (minimum 1 item)
+- **No empty arrays**: `[]` is not allowed (minimum 1 item), except for `references`
 - **No inline arrays**: Do not use `[a, b]` format. Always use list format
 - **No multiline**: Do not use `|` or `>`. Write in single line
-
----
-
-## Scan Targets [Single Source of Truth]
-
-```
-specs/{feature}/requirements/**/*.md
-specs/{feature}/design/**/*.md
-```
-
-**Exclusions**:
-- `.claude/doc-advisor/toc/specs/specs_toc.yaml` (self)
-- `.claude/doc-advisor/toc/specs/.toc_work/` (work directory)
-- `specs/**/reference/` (reference materials)
-
----
-
-## Change Detection Method [Single Source of Truth]
-
-In incremental mode, file content hashes are recorded for change detection.
-
-### Checksum File
-
-```yaml
-# .claude/doc-advisor/toc/specs/.toc_checksums.yaml (Git tracked)
-checksums:
-  specs/main/requirements/app_overview.md: a1b2c3d4e5f6...
-  specs/main/design/list_screen_design.md: b2c3d4e5f6a1...
-  # ... all target files
-```
-
-### Processing Flow
-
-```
-1. Scan target files (Glob)
-2. Calculate hash for each file (shasum -a 256)
-3. Compare with existing .toc_checksums.yaml:
-   - Hash mismatch → changed → generate pending YAML
-   - New file → added → generate pending YAML
-   - In checksums but file missing → deleted
-4. Process with subagents
-5. After merge, update .toc_checksums.yaml
-```
-
-### Benefits
-
-- Accurate change detection (no false positives/negatives)
-- Git-independent (not affected by commit state)
-- `.toc_checksums.yaml` is Git tracked (incremental detection works across machines)
 
 ---
 
@@ -129,6 +80,7 @@ purpose: null
 content_details: []
 applicable_tasks: []
 keywords: []
+references: []
 ```
 
 ### _meta Field Description
@@ -177,6 +129,7 @@ docs:
     content_details: array[string] # Content details (5+ items, main requirements/design content)
     applicable_tasks: array[string] # Applicable tasks (task types that need this file)
     keywords: array[string]       # Keywords (matching terms for task descriptions, 5-10 words)
+    references: array[string]     # Referenced documents (direct references only, empty array allowed)
 ```
 
 **Example**:
@@ -202,6 +155,7 @@ docs:
       - feature list
       - use case
       - screen navigation
+    references: []
 
   specs/main/design/list_screen_design.md:
     doc_type: design
@@ -223,6 +177,8 @@ docs:
       - SwiftUI
       - state management
       - AsyncStream
+    references:
+      - specs/main/requirements/app_overview.md
 ```
 
 ---
@@ -253,6 +209,15 @@ docs:
 - Include technical terms, concept names, feature names
 - 5-10 words
 
+### references
+
+- List documents **directly referenced** in this file
+- Do NOT follow references (only record what this document mentions)
+- Prefer concrete paths (e.g., `specs/main/requirements/auth.md`)
+- Abstract references are allowed if specific path is unknown (e.g., "authentication design document")
+- Empty array `[]` is allowed if no references found
+- Do NOT include self-reference
+
 ---
 
 ## Complete Example
@@ -282,6 +247,7 @@ docs:
       - application
       - requirements
       - feature list
+    references: []
 
   specs/main/requirements/screens/login_screen.md:
     doc_type: requirement
@@ -300,6 +266,9 @@ docs:
       - authentication
       - validation
       - screen
+    references:
+      - specs/main/requirements/auth/authentication.md
+      - error handling design document
 
   specs/main/design/login_screen_design.md:
     doc_type: design
@@ -318,4 +287,6 @@ docs:
       - ViewModel
       - SwiftUI
       - authentication
+    references:
+      - specs/main/requirements/screens/login_screen.md
 ```

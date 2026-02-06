@@ -6,6 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.3.0] - 2026-02-06
+
+### Added
+- **References field**: `specs_toc.yaml` now includes a `references` field to track document cross-references
+  - Direct references only (no recursive following)
+  - Supports both concrete paths and abstract references
+  - Empty array `[]` allowed for documents with no references
+- **Version placeholder**: Template files now use `{{DOC_ADVISOR_VERSION}}` placeholder
+  - Replaced at setup time by `setup.sh`
+  - Version changes now require updating only `setup.sh`
+
+### Changed
+- **Version identifier**: Updated from `3.2` to `3.3` across all managed files
+- **setup.sh**: Now substitutes `{{DOC_ADVISOR_VERSION}}` in `.py` files as well as `.md` and `.yaml`
+
+### Files modified
+- `specs_toc_format.md` - Added references field to schema
+- `specs_toc_update_workflow.md` - Added references to subagent processing
+- `specs-toc-updater.md` - Added `--references` parameter
+- `write_specs_pending.py` - Added `--references` argument
+- `merge_specs_toc.py` - Added references field handling
+
+---
+
 ## [3.2.0] - 2026-02-05
 
 ### Added

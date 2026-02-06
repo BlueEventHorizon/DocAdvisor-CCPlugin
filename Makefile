@@ -1,4 +1,4 @@
-# Doc Advisor Makefile (v3.2)
+# Doc Advisor Makefile (v3.3)
 #
 # Usage:
 #   make help               # Show help
@@ -14,7 +14,7 @@
 .DEFAULT_GOAL := help
 
 help:
-	@echo "Doc Advisor (v3.2)"
+	@echo "Doc Advisor (v3.3)"
 	@echo ""
 	@echo "Usage:"
 	@echo "  make help                    Show this help message"

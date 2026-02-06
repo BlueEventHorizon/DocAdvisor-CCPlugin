@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# doc-advisor-version-xK9XmQ: 3.2
+# doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}
 """
 pending YAML 書き込みスクリプト（specs 用）
 
@@ -14,7 +14,8 @@ status を completed に変更する。
       --purpose "目的" \
       --content-details "項目1,項目2,項目3,項目4,項目5" \
       --applicable-tasks "タスク1,タスク2" \
-      --keywords "kw1,kw2,kw3,kw4,kw5"
+      --keywords "kw1,kw2,kw3,kw4,kw5" \
+      --references "参照1,参照2"
 
 終了コード:
     0: 成功
@@ -55,6 +56,8 @@ def parse_args():
                         help='適用タスク（カンマ区切り、1項目以上）')
     parser.add_argument('--keywords', required=True,
                         help='キーワード（カンマ区切り、5-10個）')
+    parser.add_argument('--references', default='',
+                        help='参照文書（カンマ区切り、空文字列で空配列）')
     parser.add_argument('--force', action='store_true',
                         help='completed 状態でも強制上書き')
 
@@ -111,6 +114,15 @@ def write_entry_yaml(filepath, meta, entry):
         for item in items:
             lines.append(f"  - {yaml_escape(item)}")
 
+    # references フィールド（空配列許容）
+    references = entry.get('references', [])
+    if references:
+        lines.append("references:")
+        for item in references:
+            lines.append(f"  - {yaml_escape(item)}")
+    else:
+        lines.append("references: []")  # 空配列
+
     lines.append("")  # 末尾の空行
 
     try:
@@ -164,6 +176,7 @@ def main():
     content_details = parse_comma_separated(args.content_details)
     applicable_tasks = parse_comma_separated(args.applicable_tasks)
     keywords = parse_comma_separated(args.keywords)
+    references = parse_comma_separated(args.references)  # 空配列許容
 
     # バリデーション
     valid = True
@@ -191,7 +204,8 @@ def main():
         'purpose': args.purpose,
         'content_details': content_details,
         'applicable_tasks': applicable_tasks,
-        'keywords': keywords
+        'keywords': keywords,
+        'references': references
     }
 
     # 書き込み

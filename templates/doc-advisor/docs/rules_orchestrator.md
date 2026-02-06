@@ -4,7 +4,7 @@ description: Orchestrator workflow for rules_toc.yaml generation
 applicable_when:
   - Executing /create-rules-toc skill
   - Coordinating rules ToC generation process
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
 ---
 
 # rules_toc.yaml Orchestrator Workflow

@@ -242,7 +242,7 @@ echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.
 mkdir -p "$TEST_PROJECT/.claude/commands"
 cat > "$TEST_PROJECT/.claude/commands/create-rules_toc.md" << 'EOF'
 ---
-doc-advisor-version-xK9XmQ: "3.2"
+doc-advisor-version-xK9XmQ: "3.3"
 name: protected-command
 ---
 # This file has CURRENT version and should be protected
@@ -289,7 +289,7 @@ test_result "skills/doc-advisor/ with old version deleted" "1" "$([[ -d "$TEST_P
 mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor"
 cat > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" << 'EOF'
 ---
-doc-advisor-version-xK9XmQ: "3.2"
+doc-advisor-version-xK9XmQ: "3.3"
 name: doc-advisor
 ---
 # This skill has CURRENT version and should be protected

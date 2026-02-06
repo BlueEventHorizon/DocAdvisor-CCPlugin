@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# doc-advisor-version-xK9XmQ: 3.2
+# doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}
 """
 Generate pending YAML templates in .claude/doc-advisor/toc/specs/.toc_work/
 

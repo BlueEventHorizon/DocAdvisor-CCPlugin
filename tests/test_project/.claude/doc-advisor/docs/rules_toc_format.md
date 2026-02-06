@@ -4,7 +4,7 @@ description: Format definition for rules_toc.yaml (Single Source of Truth)
 applicable_when:
   - Creating or updating rules ToC entries
   - Validating rules_toc.yaml structure
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: 3.3"
 ---
 
 # rules_toc.yaml Format Definition
@@ -35,54 +35,6 @@ The quality of this file determines task execution success. **Missing informatio
 - **No empty arrays**: `[]` is not allowed (minimum 1 item)
 - **No inline arrays**: Do not use `[a, b]` format. Always use list format
 - **No multiline**: Do not use `|` or `>`. Write in single line
-
----
-
-## Scan Targets [Single Source of Truth]
-
-```
-rules/**/*.md
-```
-
-**Exclusions**:
-- `.claude/doc-advisor/toc/rules/rules_toc.yaml` (self)
-- `.claude/doc-advisor/toc/rules/.toc_work/` (work directory)
-- `rules/**/reference/` (reference materials)
-
----
-
-## Change Detection Method [Single Source of Truth]
-
-In incremental mode, file content hashes are recorded for change detection.
-
-### Checksum File
-
-```yaml
-# .claude/doc-advisor/toc/rules/.toc_checksums.yaml (Git tracked)
-checksums:
-  rules/core/architecture_rule.md: a1b2c3d4e5f6...
-  rules/core/coding_rule.md: b2c3d4e5f6a1...
-  # ... all target files
-```
-
-### Processing Flow
-
-```
-1. Scan target files (Glob)
-2. Calculate hash for each file (shasum -a 256)
-3. Compare with existing .toc_checksums.yaml:
-   - Hash mismatch → changed → generate pending YAML
-   - New file → added → generate pending YAML
-   - In checksums but file missing → deleted
-4. Process with subagents
-5. After merge, update .toc_checksums.yaml
-```
-
-### Benefits
-
-- Accurate change detection (no false positives/negatives)
-- Git-independent (not affected by commit state)
-- `.toc_checksums.yaml` is Git tracked (incremental detection works across machines)
 
 ---
 

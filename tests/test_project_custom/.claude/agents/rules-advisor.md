@@ -3,7 +3,7 @@ name: rules-advisor
 description: Agent that identifies development documents (guidelines) needed for a task
 model: sonnet
 color: orange
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: 3.3"
 ---
 
 ## Role

@@ -4,7 +4,7 @@ description: Specialized agent that generates ToC entries for a single requireme
 model: sonnet
 tools: Read, Bash
 color: cyan
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: 3.3"
 ---
 
 ## Overview
@@ -29,6 +29,7 @@ Read the following before processing:
 1. Read `{entry_file}` to get `_meta.source_file`
 2. Read the requirement/design document using `_meta.source_file` value (resolves from project root, e.g., `documents/main/reqs/login.md`)
 3. Extract each field according to "Field Guidelines" in `specs_toc_format.md`
+   - For `references`: Extract documents directly referenced in the text. Prefer concrete paths. Use empty string if no references found.
 4. Call the write script to save the completed entry:
 
 ```bash
@@ -38,10 +39,11 @@ $HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/write_specs_pending.py \
   --purpose "{extracted purpose}" \
   --content-details "{comma-separated details}" \
   --applicable-tasks "{comma-separated tasks}" \
-  --keywords "{comma-separated keywords}"
+  --keywords "{comma-separated keywords}" \
+  --references "{comma-separated references or empty}"
 ```
 
-**Important**: Arrays are passed as comma-separated strings. Avoid using commas within individual items.
+**Important**: Arrays are passed as comma-separated strings. Avoid using commas within individual items. For `--references`, pass empty string `""` if no references found.
 
 ## Notes
 

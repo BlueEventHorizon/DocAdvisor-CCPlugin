@@ -5,7 +5,7 @@ applicable_when:
   - Running as specs-toc-updater Agent
   - Executing /create-specs-toc
   - After adding, modifying, or deleting requirement/design documents
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
 ---
 
 # specs_toc.yaml Update Workflow
@@ -135,6 +135,7 @@ test -d .claude/doc-advisor/toc/specs/.toc_work && echo "EXISTS" || echo "NOT_EX
    - `content_details`: Content details (5-10 items)
    - `applicable_tasks`: Applicable tasks
    - `keywords`: 5-10 words
+   - `references`: Direct references found in document (empty array if none)
 4. Set `_meta.status: completed` and `_meta.updated_at`
 5. Write and save
 
@@ -231,7 +232,7 @@ Check before merge:
 After generation/update, verify:
 
 - [ ] All {{REQUIREMENT_DIR_NAME}}/ and {{DESIGN_DIR_NAME}}/ files are listed
-- [ ] Each entry has required fields (doc_type, title, purpose, content_details, applicable_tasks, keywords)
+- [ ] Each entry has required fields (doc_type, title, purpose, content_details, applicable_tasks, keywords, references)
 - [ ] purpose contains "what it defines" (1-2 lines)
 - [ ] keywords contain task-matchable terms (5-10 words)
 - [ ] YAML syntax is correct (indentation, colons, hyphens)

@@ -3,7 +3,7 @@ name: specs-advisor
 description: Agent that identifies requirement and design documents needed for a task
 model: {{AGENT_MODEL}}
 color: cyan
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
 ---
 
 ## Role

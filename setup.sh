@@ -1,5 +1,5 @@
 #!/bin/bash
-# Doc Advisor Setup Script (v3.2)
+# Doc Advisor Setup Script (v3.3)
 #
 # Copies all templates to target project and creates configuration
 #
@@ -50,7 +50,7 @@ TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
-            echo "Doc Advisor Setup Script (v3.2)"
+            echo "Doc Advisor Setup Script (v3.3)"
             echo ""
             echo "Usage:"
             echo "  ./setup.sh TARGET_DIR    # Setup for specified project"
@@ -87,7 +87,7 @@ done
 
 # Interactive prompt if not specified
 if [[ -z "$TARGET_DIR" ]]; then
-    echo "Doc Advisor Setup Script (v3.2)"
+    echo "Doc Advisor Setup Script (v3.3)"
     echo ""
     if [[ -n "$DEFAULT_TARGET_DIR" ]]; then
         read -p "Enter target project directory [${DEFAULT_TARGET_DIR}]: " TARGET_DIR
@@ -109,7 +109,7 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 }
 
 echo -e "${GREEN}==========================================${NC}"
-echo -e "${GREEN}Doc Advisor Setup (v3.2)${NC}"
+echo -e "${GREEN}Doc Advisor Setup (v3.3)${NC}"
 echo -e "${GREEN}==========================================${NC}"
 echo ""
 echo "Target project: ${TARGET_DIR}"
@@ -194,7 +194,7 @@ SKILLS_DIR="${CLAUDE_DIR}/skills"
 # =============================================================================
 # Version identifier functions
 # =============================================================================
-DOC_ADVISOR_VERSION="3.2"
+DOC_ADVISOR_VERSION="3.3"
 # Unique identifier key: doc-advisor-version-xK9XmQ
 # Note: xK9XmQ is a permanent, fixed string to prevent false matches with user files
 
@@ -308,6 +308,7 @@ copy_and_substitute() {
             -e "s|{{PLAN_DIR_NAME}}|${PLAN_DIR_NAME}|g" \
             -e "s|{{AGENT_MODEL}}|${AGENT_MODEL}|g" \
             -e "s|{{PYTHON_PATH}}|${PYTHON_PATH}|g" \
+            -e "s|{{DOC_ADVISOR_VERSION}}|${DOC_ADVISOR_VERSION}|g" \
             "$src" > "$dst"
     fi
 }
@@ -335,10 +336,10 @@ copy_dir_with_substitution() {
         mkdir -p "$(dirname "$dst_file")"
 
         # Copy with substitution for text files
-        if [[ "$src_file" == *.md ]] || [[ "$src_file" == *.yaml ]]; then
+        if [[ "$src_file" == *.md ]] || [[ "$src_file" == *.yaml ]] || [[ "$src_file" == *.py ]]; then
             copy_and_substitute "$src_file" "$dst_file"
         else
-            # Copy as-is for Python and shell scripts
+            # Copy as-is for shell scripts
             cp "$src_file" "$dst_file"
         fi
     done

@@ -4,7 +4,7 @@ description: Update specs search index (ToC) after modifying, creating, or delet
 allowed-tools: Bash, Read, Task
 user-invocable: true
 argument-hint: "[--full]"
-doc-advisor-version-xK9XmQ: 3.2"
+doc-advisor-version-xK9XmQ: 3.3"
 ---
 
 # create-specs-toc
