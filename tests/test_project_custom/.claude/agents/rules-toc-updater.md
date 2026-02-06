@@ -43,6 +43,28 @@ $HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/write_rules_pending.py \
 
 **Important**: Arrays are passed as comma-separated strings. Avoid using commas within individual items.
 
+## Completion Response
+
+After successfully writing the entry file, return ONLY:
+
+```
+✅ Done: {filename}
+```
+
+On error, return ONLY:
+
+```
+❌ Error: {filename}: {brief reason}
+```
+
+**Do NOT return**:
+- File contents
+- Extracted field values
+- Detailed processing logs
+- Any other information
+
+This is critical for context management when processing many files in parallel.
+
 ## Notes
 
 - **On error**: Do NOT attempt automatic recovery or workarounds. Report the error details and exit immediately. Let the orchestrator decide how to proceed.

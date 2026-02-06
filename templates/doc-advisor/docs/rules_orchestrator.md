@@ -63,6 +63,16 @@ Read the following before processing:
 
 ### Phase 2: Parallel Processing
 
+> **⚠️ Context Management [IMPORTANT]**
+>
+> Subagent results accumulate in the parent conversation context.
+> When processing many files, this can cause context overflow.
+>
+> **Rules:**
+> - Subagents return minimal responses (defined in agent's "Completion Response" section)
+> - After each batch completes, output a brief progress summary (e.g., "Batch 2/10 complete, 40 remaining")
+> - Keep orchestrator messages minimal between batches
+
 ```
 1. Identify pending status files from .claude/doc-advisor/toc/rules/.toc_work/*.yaml
     ↓
