@@ -303,6 +303,88 @@ test_result "skills/doc-advisor/ with current version protected" "0" "$([[ -d "$
 echo ""
 
 # ==================================================
+echo "=================================================="
+echo "Test 11: CLAUDE.md に Doc Advisor ルールを追記 (y)"
+echo "=================================================="
+
+setup_test_project
+
+# Create existing CLAUDE.md with some content
+echo "# My Project" > "$TEST_PROJECT/CLAUDE.md"
+echo "" >> "$TEST_PROJECT/CLAUDE.md"
+echo "Existing content here." >> "$TEST_PROJECT/CLAUDE.md"
+
+# Run setup with 'y' for CLAUDE.md prompt
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\ny" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: marker exists and existing content preserved
+MARKER_COUNT=$(grep -c "doc-advisor-section-start" "$TEST_PROJECT/CLAUDE.md" 2>/dev/null || echo 0)
+test_result "CLAUDE.md marker added" "1" "$MARKER_COUNT"
+EXISTING_PRESERVED=$(grep -c "Existing content here" "$TEST_PROJECT/CLAUDE.md" 2>/dev/null || echo 0)
+test_result "Existing CLAUDE.md content preserved" "1" "$EXISTING_PRESERVED"
+echo ""
+
+# ==================================================
+echo "=================================================="
+echo "Test 12: CLAUDE.md 新規作成 (y)"
+echo "=================================================="
+
+setup_test_project
+
+# No CLAUDE.md exists
+
+# Run setup with 'y' for CLAUDE.md prompt
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\ny" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: CLAUDE.md created with marker
+test_result "CLAUDE.md created" "0" "$([[ -f "$TEST_PROJECT/CLAUDE.md" ]] && echo 0 || echo 1)"
+MARKER_COUNT=$(grep -c "doc-advisor-section-start" "$TEST_PROJECT/CLAUDE.md" 2>/dev/null || echo 0)
+test_result "CLAUDE.md marker exists" "1" "$MARKER_COUNT"
+echo ""
+
+# ==================================================
+echo "=================================================="
+echo "Test 13: CLAUDE.md マーカー既存でスキップ"
+echo "=================================================="
+
+setup_test_project
+
+# Create CLAUDE.md with existing marker
+cat > "$TEST_PROJECT/CLAUDE.md" << 'EOF'
+# My Project
+
+<!-- doc-advisor-section-start -->
+## Doc Advisor ルール [MANDATORY]
+<!-- doc-advisor-section-end -->
+EOF
+
+# Run setup (no extra input needed - marker detected, prompt skipped)
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: marker still only appears once (not duplicated)
+MARKER_COUNT=$(grep -c "doc-advisor-section-start" "$TEST_PROJECT/CLAUDE.md" 2>/dev/null || echo 0)
+test_result "CLAUDE.md marker not duplicated" "1" "$MARKER_COUNT"
+echo ""
+
+# ==================================================
+echo "=================================================="
+echo "Test 14: CLAUDE.md スキップ (n)"
+echo "=================================================="
+
+setup_test_project
+
+# Create CLAUDE.md without marker
+echo "# My Project" > "$TEST_PROJECT/CLAUDE.md"
+
+# Run setup with 'n' for CLAUDE.md prompt
+echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus\nn" | "$PROJECT_ROOT/setup.sh" "$TEST_PROJECT" > /dev/null 2>&1
+
+# Verify: no marker added
+MARKER_COUNT=$(grep -c "doc-advisor-section-start" "$TEST_PROJECT/CLAUDE.md" 2>/dev/null; true)
+test_result "CLAUDE.md marker not added (skipped)" "0" "$MARKER_COUNT"
+echo ""
+
+# ==================================================
 # Cleanup
 cleanup
 
