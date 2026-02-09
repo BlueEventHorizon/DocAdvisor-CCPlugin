@@ -14,7 +14,7 @@ Processes a single rule document (`.md` file under `{{RULES_DIR}}`) and complete
 **Important**: This agent processes only one file. Multiple file processing is managed by the orchestrator (create-rules_toc command) via parallel invocation.
 
 ## EXECUTION RULES
-- Do NOT enter plan mode or ask for confirmation
+- Exit plan mode if active. Do NOT ask for confirmation
 - If a step fails, report the error and continue to the next step
 
 ## Parameters
