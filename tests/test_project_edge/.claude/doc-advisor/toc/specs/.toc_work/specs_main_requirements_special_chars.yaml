@@ -2,7 +2,7 @@ _meta:
   source_file: specs/main/requirements/special_chars.md
   doc_type: requirement
   status: completed
-  updated_at: 2026-02-06T08:14:07Z
+  updated_at: 2026-02-09T05:42:33Z
 
 title: "Special: \"quotes\" & ampersand"
 purpose: Test YAML escaping for special characters

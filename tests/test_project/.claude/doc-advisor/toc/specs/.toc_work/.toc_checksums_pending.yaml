@@ -1,5 +1,5 @@
-# specs_toc.yaml 用チェックサムファイル
-# 自動生成 - 手動編集禁止
+# Phase 1 snapshot - used to replace .toc_checksums.yaml after merge
+# Auto-generated - do not edit
 generated_at: 2026-02-09T05:42:32Z
 file_count: 3
 checksums:
