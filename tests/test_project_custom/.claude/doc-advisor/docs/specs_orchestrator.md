@@ -230,7 +230,9 @@ $HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/validate_specs_toc.py
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-$HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/create_checksums.py --target specs
+#    Use Phase 1 snapshot instead of recalculating current hashes.
+#    This ensures files modified during Phase 2 will be re-processed next time.
+cp .claude/doc-advisor/toc/specs/.toc_work/.toc_checksums_pending.yaml .claude/doc-advisor/toc/specs/.toc_checksums.yaml
 ```
 
 ### Incremental Mode
@@ -245,7 +247,9 @@ $HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/validate_specs_toc.py
 # → exit 1: Validation failed, restore from backup and abort
 
 # 3. Update checksums (only on validation success)
-$HOME/.pyenv/shims/python3 .claude/doc-advisor/scripts/create_checksums.py --target specs
+#    Use Phase 1 snapshot instead of recalculating current hashes.
+#    This ensures files modified during Phase 2 will be re-processed next time.
+cp .claude/doc-advisor/toc/specs/.toc_work/.toc_checksums_pending.yaml .claude/doc-advisor/toc/specs/.toc_checksums.yaml
 ```
 
 ### Delete-only Mode (N=0 and M>0)

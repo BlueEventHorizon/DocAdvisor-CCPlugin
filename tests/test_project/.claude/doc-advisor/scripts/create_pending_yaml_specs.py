@@ -16,6 +16,7 @@ import os
 import sys
 import hashlib
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 
 from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks
@@ -203,6 +204,39 @@ def create_pending_yaml(source_file, doc_type):
         return None
 
 
+def save_pending_checksums(all_files):
+    """Save checksums snapshot at Phase 1 time to .toc_work/
+
+    Used to replace .toc_checksums.yaml after merge (Phase 3).
+    This ensures that files modified during Phase 2 will be
+    detected as changed in the next incremental run.
+    """
+    checksums = {}
+    for md_file in all_files:
+        source_file = get_source_file_path(md_file)
+        hash_value = calculate_file_hash(md_file)
+        if hash_value is not None:
+            checksums[source_file] = hash_value
+
+    pending_checksums_path = TOC_WORK_DIR / ".toc_checksums_pending.yaml"
+    lines = [
+        "# Phase 1 snapshot - used to replace .toc_checksums.yaml after merge",
+        "# Auto-generated - do not edit",
+        f"generated_at: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}",
+        f"file_count: {len(checksums)}",
+        "checksums:",
+    ]
+    for path, hash_val in sorted(checksums.items()):
+        lines.append(f"  {path}: {hash_val}")
+
+    try:
+        with open(pending_checksums_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines) + '\n')
+        print(f"Saved pending checksums: {len(checksums)} files")
+    except (IOError, OSError, PermissionError) as e:
+        print(f"Warning: Failed to save pending checksums: {e}")
+
+
 def main():
     # Initialize configuration
     if not init_config():
@@ -271,6 +305,9 @@ def main():
 
     # Create .toc_work directory
     TOC_WORK_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Save Phase 1 checksums snapshot (for all target files, not just changed ones)
+    save_pending_checksums(all_files)
 
     # Generate pending YAMLs
     created_files = []
