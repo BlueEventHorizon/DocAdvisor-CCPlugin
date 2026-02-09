@@ -42,12 +42,15 @@ setup_test_project() {
     echo "# Test Spec" > "$TEST_PROJECT/specs/main/requirements/test.md"
 }
 
+CURRENT_VERSION=$(grep 'DOC_ADVISOR_VERSION=' "$PROJECT_ROOT/setup.sh" | cut -d'"' -f2)
+
 echo "=================================================="
 echo "Setup Upgrade Test Suite"
 echo "=================================================="
 echo ""
 echo "Project root: $PROJECT_ROOT"
 echo "Test project: $TEST_PROJECT"
+echo "Current version: $CURRENT_VERSION"
 echo ""
 
 # ==================================================
@@ -240,9 +243,9 @@ echo -e "rules\nspecs\nrequirements\ndesign\nplan\nopus" | "$PROJECT_ROOT/setup.
 
 # Create legacy file WITH CURRENT version (should be protected)
 mkdir -p "$TEST_PROJECT/.claude/commands"
-cat > "$TEST_PROJECT/.claude/commands/create-rules_toc.md" << 'EOF'
+cat > "$TEST_PROJECT/.claude/commands/create-rules_toc.md" << EOF
 ---
-doc-advisor-version-xK9XmQ: "3.3"
+doc-advisor-version-xK9XmQ: "$CURRENT_VERSION"
 name: protected-command
 ---
 # This file has CURRENT version and should be protected
@@ -287,9 +290,9 @@ test_result "skills/doc-advisor/ with old version deleted" "1" "$([[ -d "$TEST_P
 
 # Now test current version protection
 mkdir -p "$TEST_PROJECT/.claude/skills/doc-advisor"
-cat > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" << 'EOF'
+cat > "$TEST_PROJECT/.claude/skills/doc-advisor/SKILL.md" << EOF
 ---
-doc-advisor-version-xK9XmQ: "3.3"
+doc-advisor-version-xK9XmQ: "$CURRENT_VERSION"
 name: doc-advisor
 ---
 # This skill has CURRENT version and should be protected

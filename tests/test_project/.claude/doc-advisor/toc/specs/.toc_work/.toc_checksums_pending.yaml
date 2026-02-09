@@ -1,8 +1,0 @@
-# Phase 1 snapshot - used to replace .toc_checksums.yaml after merge
-# Auto-generated - do not edit
-generated_at: 2026-02-09T06:22:39Z
-file_count: 3
-checksums:
-  specs/linked_specs/requirements/external_req.md: 6f907977fb230b299503873bddcb4402a15b2b13190469b08b21121126031be7
-  specs/main/design/authentication_api.md: 2d81cba5cacc6bb3131783fa4f6b9c89e77b3bd0056607d4accd896a94debc30
-  specs/main/requirements/user_authentication.md: c9eeee259478b276892b08bbf51645f5da753041a83129acc5b3cacf3ac8fd91

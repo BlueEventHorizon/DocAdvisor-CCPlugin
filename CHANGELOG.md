@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.4.0] - 2026-02-09
+
+### Added
+- **Phase 1 checksums snapshot**: `create_pending_yaml_rules.py` and `create_pending_yaml_specs.py` now save `.toc_checksums_pending.yaml` during Phase 1
+  - Captures file hashes at the time of pending YAML generation
+  - Used in Phase 3 to replace `.toc_checksums.yaml` instead of recalculating
+  - Ensures files modified during Phase 2 (subagent processing) are detected as changed in the next incremental run
+- **CLAUDE.md rule addition**: `setup.sh` now offers to add Doc Advisor rules to the target project's `CLAUDE.md`
+  - Adds "ToC direct modification forbidden" rule with skill references
+  - Uses HTML comment markers for idempotent detection (`<!-- doc-advisor-section-start -->`)
+  - Skips if rules are already present
+
+### Changed
+- **Version identifier**: Updated from `3.3` to `3.4` across all managed files
+- **Phase 3 checksum update**: Orchestrators now use `cp .toc_checksums_pending.yaml` instead of running `create_checksums.py`
+  - Prevents the "stale ToC" problem when source files are modified during Phase 2
+  - `create_checksums.py` is still used for delete-only mode
+- **Batch processing**: Removed hardcoded "batch of 5" from `specs_orchestrator.md`, now uses generic "batch"
+- **Version management**: Removed hardcoded version from README.md, README_ja.md, TECHNICAL_GUIDE.md, TECHNICAL_GUIDE_ja.md, Makefile, setup.sh headers
+  - `setup.sh` の `DOC_ADVISOR_VERSION` が唯一のハードコード箇所に
+  - Makefile, テストは `setup.sh` から動的取得
+  - `update_version.py` を簡素化（対象ファイルが `setup.sh` + `CHANGELOG.md` のみに）
+
+### Files modified
+- `create_pending_yaml_rules.py` - Added `save_pending_checksums()` function
+- `create_pending_yaml_specs.py` - Added `save_pending_checksums()` function
+- `specs_orchestrator.md` - Phase 3 `cp` replacement, "batch" wording fix
+- `rules_orchestrator.md` - Phase 3 `cp` replacement
+- `setup.sh` - CLAUDE.md rule addition feature
+- `test_checksums.sh` - Added pending checksums tests
+- `test_setup_upgrade.sh` - Added CLAUDE.md tests (Tests 11-14)
+
+---
+
 ## [3.3.0] - 2026-02-06
 
 ### Added

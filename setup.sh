@@ -1,5 +1,5 @@
 #!/bin/bash
-# Doc Advisor Setup Script (v3.3)
+# Doc Advisor Setup Script
 #
 # Copies all templates to target project and creates configuration
 #
@@ -50,7 +50,7 @@ TARGET_DIR=""
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
-            echo "Doc Advisor Setup Script (v3.3)"
+            echo "Doc Advisor Setup Script"
             echo ""
             echo "Usage:"
             echo "  ./setup.sh TARGET_DIR    # Setup for specified project"
@@ -87,7 +87,7 @@ done
 
 # Interactive prompt if not specified
 if [[ -z "$TARGET_DIR" ]]; then
-    echo "Doc Advisor Setup Script (v3.3)"
+    echo "Doc Advisor Setup Script"
     echo ""
     if [[ -n "$DEFAULT_TARGET_DIR" ]]; then
         read -p "Enter target project directory [${DEFAULT_TARGET_DIR}]: " TARGET_DIR
@@ -109,7 +109,7 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 }
 
 echo -e "${GREEN}==========================================${NC}"
-echo -e "${GREEN}Doc Advisor Setup (v3.3)${NC}"
+echo -e "${GREEN}Doc Advisor Setup${NC}"
 echo -e "${GREEN}==========================================${NC}"
 echo ""
 echo "Target project: ${TARGET_DIR}"
@@ -194,7 +194,7 @@ SKILLS_DIR="${CLAUDE_DIR}/skills"
 # =============================================================================
 # Version identifier functions
 # =============================================================================
-DOC_ADVISOR_VERSION="3.3"
+DOC_ADVISOR_VERSION="3.4"
 # Unique identifier key: doc-advisor-version-xK9XmQ
 # Note: xK9XmQ is a permanent, fixed string to prevent false matches with user files
 

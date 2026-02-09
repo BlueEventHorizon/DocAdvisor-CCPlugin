@@ -1,4 +1,4 @@
-# Doc Advisor (v3.3)
+# Doc Advisor
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
