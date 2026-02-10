@@ -19,7 +19,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_system_exclude_patterns, rglob_follow_symlinks
+from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_system_exclude_patterns, rglob_follow_symlinks, normalize_path
 
 # Global configuration (initialized in init_config())
 CONFIG = None
@@ -135,7 +135,7 @@ def load_checksums():
 
 def get_source_file_path(md_file):
     """Get project-relative path with RULES_DIR prefix (e.g., 'rules/core/architecture_rule.md')"""
-    rel_path = str(md_file.relative_to(RULES_DIR))
+    rel_path = normalize_path(md_file.relative_to(RULES_DIR))
     return f"{RULES_DIR_NAME}/{rel_path}"
 
 

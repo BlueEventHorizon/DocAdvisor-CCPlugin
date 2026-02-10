@@ -17,7 +17,7 @@ import hashlib
 from datetime import datetime, timezone
 from pathlib import Path
 
-from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks
+from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks, normalize_path
 
 
 def calculate_file_hash(filepath):
@@ -56,7 +56,7 @@ def find_md_files_specs(root_dir, exclude_patterns, target_dir_names):
         # パスのどこかに target_dirs のディレクトリ名が含まれるかチェック
         # e.g., main/requirements/app.md → ['main', 'requirements', 'app.md']
         #       → 'requirements' in target_dir_names → True
-        rel_path = str(filepath.relative_to(root_dir))
+        rel_path = normalize_path(filepath.relative_to(root_dir))
         parts = rel_path.split('/')
         if any(part in target_dir_names for part in parts):
             md_files.append(filepath)
@@ -153,7 +153,7 @@ def main():
     checksums = {}
     skipped_count = 0
     for filepath in md_files:
-        rel_path = str(filepath.relative_to(root_dir))
+        rel_path = normalize_path(filepath.relative_to(root_dir))
         # Include root_dir prefix for project-relative path (e.g., "rules/core/..." or "specs/main/...")
         prefixed_path = f"{root_dir_name}/{rel_path}"
         hash_value = calculate_file_hash(filepath)

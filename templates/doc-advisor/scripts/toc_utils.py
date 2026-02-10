@@ -12,6 +12,7 @@ import fnmatch
 import os
 import re
 import shutil
+import unicodedata
 from pathlib import Path
 
 
@@ -35,6 +36,18 @@ def get_system_exclude_patterns(category):
     elif category == 'specs':
         return SYSTEM_EXCLUDE_PATTERNS_SPECS.copy()
     return []
+
+
+def normalize_path(path_str):
+    """
+    Normalize path string to NFC for consistent comparison.
+
+    macOS stores filenames in NFD (decomposed) form, while config files
+    and user input typically use NFC (composed) form. This causes string
+    comparison to fail for Japanese characters with dakuten/handakuten
+    (e.g., プ as U+30D7 vs フ+゚ as U+30D5+U+309A).
+    """
+    return unicodedata.normalize('NFC', str(path_str))
 
 
 def get_project_root():
@@ -267,6 +280,9 @@ def _parse_config_yaml(content):
                 current_dict[key] = _parse_value(value) if value else ''
         elif stripped.startswith('- ') and current_list is not None:
             item = stripped[2:].strip().strip('"\'')
+            # Strip inline comments (e.g., "plan  # comment" → "plan")
+            if '  #' in item and not item.startswith('"'):
+                item = item[:item.index('  #')].strip()
             current_list.append(item)
 
     return result
@@ -592,15 +608,16 @@ def should_exclude(filepath, root_dir, exclude_patterns):
         - Patterns containing '/' are matched as path substring
         - Patterns without '/' are matched as exact directory name
         - This prevents 'plan' from excluding 'planning.md'
+        - NFC normalization is applied for macOS NFD compatibility
     """
-    rel_path = str(filepath.relative_to(root_dir))
+    rel_path = normalize_path(filepath.relative_to(root_dir))
     path_parts = rel_path.split('/')
     dir_parts = path_parts[:-1]  # ファイル名を除く
     dir_path = '/'.join(dir_parts)  # ディレクトリパスのみ
 
     for pattern in exclude_patterns:
-        # 先頭・末尾の / を除去
-        normalized = pattern.strip('/')
+        # 先頭・末尾の / を除去し NFC 正規化
+        normalized = normalize_path(pattern.strip('/'))
 
         if '/' in normalized:
             # パターンに / が含まれる場合はパス部分文字列としてマッチ

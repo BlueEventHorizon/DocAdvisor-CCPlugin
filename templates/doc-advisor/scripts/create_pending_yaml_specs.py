@@ -19,7 +19,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks
+from toc_utils import get_project_root, load_config, should_exclude, resolve_config_path, get_default_target_dirs, get_system_exclude_patterns, rglob_follow_symlinks, normalize_path
 
 # Global configuration (initialized in init_config())
 CONFIG = None
@@ -83,7 +83,7 @@ keywords: []
 
 def is_target_dir(filepath):
     """Check if file is under target directory"""
-    rel_path = str(filepath.relative_to(SPECS_DIR))
+    rel_path = normalize_path(filepath.relative_to(SPECS_DIR))
     parts = rel_path.split('/')
     # パスのどこかに target_dirs のディレクトリ名が含まれるかチェック
     # e.g., main/requirements/app.md → ['main', 'requirements', 'app.md']
@@ -151,7 +151,7 @@ def load_checksums():
 
 def get_source_file_path(md_file):
     """Get project-relative path with SPECS_DIR prefix (e.g., 'specs/main/requirements/app.md')"""
-    rel_path = str(md_file.relative_to(SPECS_DIR))
+    rel_path = normalize_path(md_file.relative_to(SPECS_DIR))
     return f"{SPECS_DIR_NAME}/{rel_path}"
 
 

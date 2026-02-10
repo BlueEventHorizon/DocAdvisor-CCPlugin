@@ -33,6 +33,7 @@ from toc_utils import (
     get_default_target_dirs,
     get_system_exclude_patterns,
     rglob_follow_symlinks,
+    normalize_path,
 )
 
 # Global configuration (initialized in init_config())
@@ -208,7 +209,7 @@ def load_existing_toc(toc_path):
 
 def is_target_dir(filepath):
     """Check if file is under target directory"""
-    rel_path = str(filepath.relative_to(SPECS_DIR))
+    rel_path = normalize_path(filepath.relative_to(SPECS_DIR))
     parts = rel_path.split('/')
     # パスのどこかに target_dirs のディレクトリ名が含まれるかチェック
     # e.g., main/requirements/app.md → ['main', 'requirements', 'app.md']
@@ -225,7 +226,7 @@ def get_existing_files():
             continue
         if not is_target_dir(filepath):
             continue
-        rel_path = str(filepath.relative_to(SPECS_DIR))
+        rel_path = normalize_path(filepath.relative_to(SPECS_DIR))
         # Include SPECS_DIR prefix for project-relative path
         prefixed_path = f"{SPECS_DIR_NAME}/{rel_path}"
         files.add(prefixed_path)
@@ -251,16 +252,19 @@ def delete_only_mode():
     existing_files = get_existing_files()
     deleted_files = checksum_files - existing_files
 
-    if not deleted_files:
-        print("No files to delete")
-        return True
-
     deleted_count = 0
     for del_file in deleted_files:
         if del_file in docs:
             del docs[del_file]
             print(f"  Deleted: {del_file}")
             deleted_count += 1
+
+    # Also delete stale entries in ToC but not in current valid files
+    stale_entries = [p for p in docs if p not in existing_files]
+    for stale in stale_entries:
+        del docs[stale]
+        print(f"  Deleted (stale): {stale}")
+        deleted_count += 1
 
     if deleted_count == 0:
         print("No entries to delete")
@@ -286,12 +290,14 @@ def merge_toc_files(mode='full'):
     # Create backup (common to all modes)
     backup_existing_file(OUTPUT_FILE)
 
+    # Get current valid files (exclude/target_dir applied)
+    existing_files = get_existing_files()
+
     # In incremental mode, load existing data
     if mode == 'incremental':
         docs = load_existing_toc(OUTPUT_FILE)
         # Delete entries that exist in checksums but file doesn't exist
         checksum_files = load_checksums(CHECKSUMS_FILE)
-        existing_files = get_existing_files()
         deleted_files = checksum_files - existing_files
         for del_file in deleted_files:
             if del_file in docs:
@@ -318,6 +324,11 @@ def merge_toc_files(mode='full'):
                 errors.append(f"{filename}: Status is not completed ({status})")
                 continue
 
+            # Skip excluded or non-target files
+            if source_file not in existing_files:
+                errors.append(f"{filename}: Skipped (excluded or missing: {source_file})")
+                continue
+
             # Add doc_type to entry
             entry['doc_type'] = doc_type
 
@@ -327,6 +338,13 @@ def merge_toc_files(mode='full'):
 
         except Exception as e:
             errors.append(f"{filename}: {e}")
+
+    # Remove stale entries not in current valid files
+    if mode == 'incremental':
+        stale_entries = [p for p in docs if p not in existing_files]
+        for stale in stale_entries:
+            del docs[stale]
+            print(f"  Deleted (stale): {stale}")
 
     if errors:
         print("\nWarnings:")
