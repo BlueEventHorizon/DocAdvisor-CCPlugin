@@ -94,9 +94,9 @@ $PYTHON_CMD "$WRITE_RULES" \
     --entry-file "$RULES_PENDING" \
     --title "Coding Standards" \
     --purpose "Define consistent coding practices for the team" \
-    --content-details "Naming conventions,Code structure,Error handling,Testing guidelines,Documentation requirements" \
-    --applicable-tasks "Code review,New development" \
-    --keywords "coding,standards,naming,structure,testing" \
+    --content-details "Naming conventions ||| Code structure ||| Error handling ||| Testing guidelines ||| Documentation requirements" \
+    --applicable-tasks "Code review ||| New development" \
+    --keywords "coding ||| standards ||| naming ||| structure ||| testing" \
     --force \
     || EXIT_CODE=$?
 
@@ -147,9 +147,9 @@ $PYTHON_CMD "$WRITE_RULES" \
     --entry-file "$RULES_PENDING" \
     --title "Test" \
     --purpose "Test purpose" \
-    --content-details "a,b,c,d,e" \
+    --content-details "a ||| b ||| c ||| d ||| e" \
     --applicable-tasks "task1" \
-    --keywords "one,two" \
+    --keywords "one ||| two" \
     2>/dev/null || EXIT_CODE=$?
 
 test_result "write_rules_pending insufficient keywords" "3" "$EXIT_CODE"
@@ -167,9 +167,9 @@ $PYTHON_CMD "$WRITE_SPECS" \
     --entry-file "$SPECS_PENDING" \
     --title "User Authentication Requirements" \
     --purpose "Define requirements for user authentication" \
-    --content-details "User login,Registration,Password reset,Session management,Security requirements" \
+    --content-details "User login ||| Registration ||| Password reset ||| Session management ||| Security requirements" \
     --applicable-tasks "Auth implementation" \
-    --keywords "auth,login,security,password,session" \
+    --keywords "auth ||| login ||| security ||| password ||| session" \
     --force \
     || EXIT_CODE=$?
 
@@ -194,9 +194,9 @@ $PYTHON_CMD "$WRITE_RULES" \
     --entry-file "/nonexistent/path/file.yaml" \
     --title "Test" \
     --purpose "Test purpose" \
-    --content-details "a,b,c,d,e" \
+    --content-details "a ||| b ||| c ||| d ||| e" \
     --applicable-tasks "task1" \
-    --keywords "a,b,c,d,e" \
+    --keywords "a ||| b ||| c ||| d ||| e" \
     2>/dev/null || EXIT_CODE=$?
 
 test_result "write_rules_pending file not found" "1" "$EXIT_CODE"

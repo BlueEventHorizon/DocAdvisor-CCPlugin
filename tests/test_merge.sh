@@ -74,9 +74,9 @@ if [[ -n "$RULES_PENDING" ]]; then
         --entry-file "$RULES_PENDING" \
         --title "Coding Standards" \
         --purpose "Define coding practices" \
-        --content-details "Naming,Structure,Errors,Testing,Docs" \
+        --content-details "Naming ||| Structure ||| Errors ||| Testing ||| Docs" \
         --applicable-tasks "Code review" \
-        --keywords "coding,standards,naming,structure,testing" \
+        --keywords "coding ||| standards ||| naming ||| structure ||| testing" \
         --force 2>/dev/null || true
 fi
 
@@ -110,6 +110,8 @@ echo "Test 2-6: merge_rules_toc.py - Incremental mode"
 echo "=================================================="
 
 # Add another pending entry (simulate new file)
+# Create the actual source file so merge won't skip it as missing
+echo "# New Rule" > "rules/new_rule.md"
 WORK_DIR=".claude/doc-advisor/toc/rules/.toc_work"
 mkdir -p "$WORK_DIR"
 cat > "$WORK_DIR/rules_new_rule.yaml" << 'EOF'
@@ -170,9 +172,9 @@ for SPECS_PENDING in .claude/doc-advisor/toc/specs/.toc_work/*.yaml; do
             --entry-file "$SPECS_PENDING" \
             --title "Test Spec Document" \
             --purpose "Testing specs merge" \
-            --content-details "Item1,Item2,Item3,Item4,Item5" \
+            --content-details "Item1 ||| Item2 ||| Item3 ||| Item4 ||| Item5" \
             --applicable-tasks "Testing" \
-            --keywords "test,spec,doc,merge,yaml" \
+            --keywords "test ||| spec ||| doc ||| merge ||| yaml" \
             --force 2>/dev/null || true
     fi
 done
@@ -216,9 +218,9 @@ if [[ -n "$RULES_PENDING" ]]; then
         --entry-file "$RULES_PENDING" \
         --title "Cleanup Test" \
         --purpose "Test cleanup option" \
-        --content-details "a,b,c,d,e" \
+        --content-details "a ||| b ||| c ||| d ||| e" \
         --applicable-tasks "test" \
-        --keywords "a,b,c,d,e" \
+        --keywords "a ||| b ||| c ||| d ||| e" \
         --force 2>/dev/null || true
 fi
 
