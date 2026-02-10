@@ -6,6 +6,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+
+## [3.5.0] - 2026-02-11
+
+### Changed
+- **Version identifier**: Updated from `3.4` to `3.5` across all managed files
+
+### Fixed
+- **`references: []` corruption**: `parse_simple_yaml()` treated inline `[]` as string `"[]"` instead of empty list, causing `write_yaml_output()` to iterate over characters producing `"["`, `"]"` entries
+  - Fixed in `toc_utils.py`, `merge_specs_toc.py`, `merge_rules_toc.py`
+- **content_details comma splitting**: `parse_comma_separated()` split on all commas, breaking items containing commas (e.g., "10,000件")
+  - Changed separator from `,` to `|||` in `write_specs_pending.py`, `write_rules_pending.py`
+  - Updated subagent instructions (`specs-toc-updater.md`, `rules-toc-updater.md`)
+- **`.toc_checksums_pending.yaml` misread**: Merge scripts' `*.yaml` glob picked up dot-prefixed files in `.toc_work/`
+  - Added dot-file exclusion in `merge_specs_toc.py`, `merge_rules_toc.py`
+- **references path hallucination**: Added instruction for subagent to verify file paths with Glob before including in references
+
+### Files modified
+- `toc_utils.py` - `parse_simple_yaml()`: `[]` handled as empty list
+- `merge_specs_toc.py` - `load_existing_toc()`: `[]` handling, dot-file exclusion
+- `merge_rules_toc.py` - `load_existing_toc()`: `[]` handling, dot-file exclusion
+- `write_specs_pending.py` - Separator changed to `|||`
+- `write_rules_pending.py` - Separator changed to `|||`
+- `specs-toc-updater.md` - `|||` separator, references path verification
+- `rules-toc-updater.md` - `|||` separator
+
+---
+
 ## [3.4.0] - 2026-02-09
 
 ### Added

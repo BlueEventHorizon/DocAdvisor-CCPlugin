@@ -51,24 +51,24 @@ def parse_args():
     parser.add_argument('--purpose', required=True,
                         help='ドキュメントの目的（1-2文）')
     parser.add_argument('--content-details', required=True,
-                        help='内容詳細（カンマ区切り、5-10項目）')
+                        help='内容詳細（||| 区切り、5-10項目）')
     parser.add_argument('--applicable-tasks', required=True,
-                        help='適用タスク（カンマ区切り、1項目以上）')
+                        help='適用タスク（||| 区切り、1項目以上）')
     parser.add_argument('--keywords', required=True,
-                        help='キーワード（カンマ区切り、5-10個）')
+                        help='キーワード（||| 区切り、5-10個）')
     parser.add_argument('--references', default='',
-                        help='参照文書（カンマ区切り、空文字列で空配列）')
+                        help='参照文書（||| 区切り、空文字列で空配列）')
     parser.add_argument('--force', action='store_true',
                         help='completed 状態でも強制上書き')
 
     return parser.parse_args()
 
 
-def parse_comma_separated(value):
-    """カンマ区切り文字列を配列に変換"""
+def parse_separated(value, separator='|||'):
+    """区切り文字列を配列に変換（デフォルト: ||| 区切り）"""
     if not value:
         return []
-    items = [item.strip() for item in value.split(',')]
+    items = [item.strip() for item in value.split(separator)]
     return [item for item in items if item]  # 空文字を除去
 
 
@@ -173,10 +173,10 @@ def main():
         return 1
 
     # 配列をパース
-    content_details = parse_comma_separated(args.content_details)
-    applicable_tasks = parse_comma_separated(args.applicable_tasks)
-    keywords = parse_comma_separated(args.keywords)
-    references = parse_comma_separated(args.references)  # 空配列許容
+    content_details = parse_separated(args.content_details)
+    applicable_tasks = parse_separated(args.applicable_tasks)
+    keywords = parse_separated(args.keywords)
+    references = parse_separated(args.references)  # 空配列許容
 
     # バリデーション
     valid = True

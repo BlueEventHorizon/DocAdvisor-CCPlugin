@@ -163,9 +163,9 @@ if [[ -n "$SPECS_PENDING" ]]; then
         --entry-file "$SPECS_PENDING" \
         --title "Special: \"quotes\" & ampersand" \
         --purpose "Test YAML escaping for special characters" \
-        --content-details "Single 'quotes',Double \"quotes\",Ampersand &,Colon: value,Pipe | char" \
+        --content-details "Single 'quotes' ||| Double \"quotes\" ||| Ampersand & ||| Colon: value ||| Pipe | char" \
         --applicable-tasks "YAML escaping test" \
-        --keywords "special,chars,yaml,escape,test" \
+        --keywords "special ||| chars ||| yaml ||| escape ||| test" \
         --force \
         2>/dev/null || EXIT_CODE=$?
 
@@ -226,40 +226,82 @@ echo "=================================================="
 echo "Test 4-6: Unicode filename in incremental merge"
 echo "=================================================="
 
+# Create actual source files so merge won't skip them as missing
+mkdir -p "specs/main/requirements"
+echo "# 日本語ドキュメント" > "specs/main/requirements/日本語ドキュメント.md"
+echo "# New File" > "specs/main/requirements/new_file.md"
+
 # Create initial specs_toc.yaml with Japanese filename
 mkdir -p .claude/doc-advisor/toc/specs
 cat > .claude/doc-advisor/toc/specs/specs_toc.yaml << 'TOCEOF'
 # Test ToC with Japanese filename
 docs:
-  日本語ドキュメント.md:
+  specs/main/requirements/日本語ドキュメント.md:
     title: "日本語タイトル"
-    summary: "日本語の要約文"
+    purpose: "日本語の要約文"
     doc_type: requirement
+    content_details:
+      - "キーワード1"
+      - "キーワード2"
+      - "キーワード3"
+      - "キーワード4"
+      - "キーワード5"
+    applicable_tasks:
+      - "タスク1"
     keywords:
       - "キーワード1"
       - "キーワード2"
+      - "キーワード3"
+      - "キーワード4"
+      - "キーワード5"
+    references: []
   specs/main/requirements/special_chars.md:
     title: "Special Characters Test"
-    summary: "Test document"
+    purpose: "Test document"
     doc_type: requirement
+    content_details:
+      - "test1"
+      - "test2"
+      - "test3"
+      - "test4"
+      - "test5"
+    applicable_tasks:
+      - "test"
     keywords:
       - "test"
+      - "special"
+      - "chars"
+      - "yaml"
+      - "edge"
+    references: []
 TOCEOF
 
 # Create a pending YAML file for incremental merge
 mkdir -p .claude/doc-advisor/toc/specs/.toc_work
 cat > .claude/doc-advisor/toc/specs/.toc_work/specs_new_file.yaml << 'PENDINGEOF'
-# metadata
-source_file: specs/main/requirements/new_file.md
-doc_type: requirement
-status: completed
-updated_at: "2026-01-31T12:00:00Z"
----
+_meta:
+  source_file: specs/main/requirements/new_file.md
+  doc_type: requirement
+  status: completed
+  updated_at: "2026-01-31T12:00:00Z"
+
 title: "New File"
-summary: "A new file for testing"
+purpose: "A new file for testing"
+content_details:
+  - "detail1"
+  - "detail2"
+  - "detail3"
+  - "detail4"
+  - "detail5"
+applicable_tasks:
+  - "testing"
 keywords:
   - "new"
   - "test"
+  - "file"
+  - "edge"
+  - "case"
+references: []
 PENDINGEOF
 
 # Run incremental merge (--mode incremental)
@@ -268,7 +310,7 @@ EXIT_CODE=$?
 
 if [[ $EXIT_CODE -eq 0 ]]; then
     # Check if Japanese filename entry is preserved
-    if grep -q "日本語ドキュメント.md:" .claude/doc-advisor/toc/specs/specs_toc.yaml 2>/dev/null; then
+    if grep -q "日本語ドキュメント" .claude/doc-advisor/toc/specs/specs_toc.yaml 2>/dev/null; then
         echo -e "${GREEN}PASS${NC}: Japanese filename preserved in incremental merge"
         ((PASS_COUNT++))
     else

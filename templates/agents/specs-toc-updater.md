@@ -41,13 +41,16 @@ Read the following before processing:
   --entry-file "{entry_file}" \
   --title "{extracted title}" \
   --purpose "{extracted purpose}" \
-  --content-details "{comma-separated details}" \
-  --applicable-tasks "{comma-separated tasks}" \
-  --keywords "{comma-separated keywords}" \
-  --references "{comma-separated references or empty}"
+  --content-details "{item1 ||| item2 ||| item3}" \
+  --applicable-tasks "{task1 ||| task2}" \
+  --keywords "{kw1 ||| kw2 ||| kw3}" \
+  --references "{ref1 ||| ref2 or empty}"
 ```
 
-**Important**: Arrays are passed as comma-separated strings. Avoid using commas within individual items. For `--references`, pass empty string `""` if no references found.
+**Important**:
+- Arrays are passed as `|||`-separated strings (NOT comma-separated). This allows commas within items (e.g., "10,000件").
+- For `--references`, pass empty string `""` if no references found.
+- For `--references`, verify file paths exist using Glob before including them. Do NOT guess or hallucinate file paths.
 
 ## Completion Response
 

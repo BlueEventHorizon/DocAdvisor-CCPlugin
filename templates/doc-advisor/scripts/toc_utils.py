@@ -388,7 +388,12 @@ def parse_simple_yaml(content):
             key = key.strip()
             value = value.strip()
 
-            if value:
+            if value == '[]':
+                # Inline empty array (e.g., "references: []")
+                current_key = key
+                current_list = []
+                result[key] = current_list
+            elif value:
                 result[key] = value.strip('"\'')
                 current_key = None
                 current_list = None

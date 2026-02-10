@@ -122,7 +122,11 @@ def load_existing_toc(toc_path):
                 key, _, val = stripped.partition(':')
                 key = key.strip()
                 val = val.strip().strip('"\'')
-                if val:
+                if val == '[]':
+                    # Inline empty array (e.g., "references: []")
+                    current_list = []
+                    current_entry[key] = current_list
+                elif val:
                     current_entry[key] = val
                 else:
                     current_list = []
@@ -242,7 +246,7 @@ def delete_only_mode():
 
 
 def merge_toc_files(mode='full'):
-    yaml_files = sorted(TOC_WORK_DIR.glob("*.yaml"))
+    yaml_files = sorted(f for f in TOC_WORK_DIR.glob("*.yaml") if not f.name.startswith('.'))
 
     if not yaml_files:
         print(f"Error: No YAML files found in {TOC_WORK_DIR}")
