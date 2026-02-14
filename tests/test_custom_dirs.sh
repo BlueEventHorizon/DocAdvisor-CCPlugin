@@ -126,23 +126,23 @@ echo "=================================================="
 echo "Test 3-3: Run create_pending_yaml_rules.py with custom dir"
 echo "=================================================="
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 
 EXIT_CODE=0
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || EXIT_CODE=$?
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_rules.py --full 2>/dev/null || EXIT_CODE=$?
 
 test_result "create_pending_yaml_rules (custom)" "0" "$EXIT_CODE"
 
 # Check if pending YAML was created
-if ls .claude/doc-advisor/rules/.toc_work/*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/rules/.toc_work/*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}: Rules pending YAML created"
     ((PASS_COUNT++))
 
     # Verify source_file path uses custom dir name
-    if grep -q "source_file: guidelines/" .claude/doc-advisor/rules/.toc_work/*.yaml; then
+    if grep -q "source_file: guidelines/" .claude/doc-advisor/toc/rules/.toc_work/*.yaml; then
         echo -e "${GREEN}PASS${NC}: source_file uses 'guidelines/' prefix"
         ((PASS_COUNT++))
     else
@@ -160,17 +160,17 @@ echo "Test 3-4: Run create_pending_yaml_specs.py with custom dirs"
 echo "=================================================="
 
 EXIT_CODE=0
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || EXIT_CODE=$?
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || EXIT_CODE=$?
 
 test_result "create_pending_yaml_specs (custom)" "0" "$EXIT_CODE"
 
 # Check if pending YAML was created
-if ls .claude/doc-advisor/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
     echo -e "${GREEN}PASS${NC}: Specs pending YAML created"
     ((PASS_COUNT++))
 
     # Verify source_file path uses custom dir name
-    if grep -q "source_file: documents/" .claude/doc-advisor/specs/.toc_work/*.yaml; then
+    if grep -q "source_file: documents/" .claude/doc-advisor/toc/specs/.toc_work/*.yaml; then
         echo -e "${GREEN}PASS${NC}: source_file uses 'documents/' prefix"
         ((PASS_COUNT++))
     else
@@ -180,8 +180,8 @@ if ls .claude/doc-advisor/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
 
     # Verify doc_type is correctly detected with custom dir names
     # reqs/ should map to requirement
-    if grep -q "doc_type: requirement" .claude/doc-advisor/specs/.toc_work/*reqs*.yaml 2>/dev/null || \
-       grep -q "doc_type: requirement" .claude/doc-advisor/specs/.toc_work/*auth*.yaml 2>/dev/null; then
+    if grep -q "doc_type: requirement" .claude/doc-advisor/toc/specs/.toc_work/*reqs*.yaml 2>/dev/null || \
+       grep -q "doc_type: requirement" .claude/doc-advisor/toc/specs/.toc_work/*auth*.yaml 2>/dev/null; then
         echo -e "${GREEN}PASS${NC}: doc_type 'requirement' detected for reqs/"
         ((PASS_COUNT++))
     else
@@ -189,8 +189,8 @@ if ls .claude/doc-advisor/specs/.toc_work/*.yaml 1>/dev/null 2>&1; then
     fi
 
     # arch/ should map to design
-    if grep -q "doc_type: design" .claude/doc-advisor/specs/.toc_work/*arch*.yaml 2>/dev/null || \
-       grep -q "doc_type: design" .claude/doc-advisor/specs/.toc_work/*api*.yaml 2>/dev/null; then
+    if grep -q "doc_type: design" .claude/doc-advisor/toc/specs/.toc_work/*arch*.yaml 2>/dev/null || \
+       grep -q "doc_type: design" .claude/doc-advisor/toc/specs/.toc_work/*api*.yaml 2>/dev/null; then
         echo -e "${GREEN}PASS${NC}: doc_type 'design' detected for arch/"
         ((PASS_COUNT++))
     else
@@ -211,10 +211,10 @@ mkdir -p documents/main/roadmap
 echo "# Test Roadmap" > documents/main/roadmap/test_plan.md
 
 # Regenerate
-$PYTHON_CMD .claude/skills/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
+$PYTHON_CMD .claude/doc-advisor/scripts/create_pending_yaml_specs.py --full 2>/dev/null || true
 
 # Check that roadmap files are NOT included
-if ls .claude/doc-advisor/specs/.toc_work/*roadmap*.yaml 1>/dev/null 2>&1; then
+if ls .claude/doc-advisor/toc/specs/.toc_work/*roadmap*.yaml 1>/dev/null 2>&1; then
     echo -e "${RED}FAIL${NC}: roadmap/ files should be excluded"
     ((FAIL_COUNT++))
 else

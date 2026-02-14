@@ -3,6 +3,7 @@ name: specs-advisor
 description: Agent that identifies requirement and design documents needed for a task
 model: {{AGENT_MODEL}}
 color: cyan
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
 ---
 
 ## Role
@@ -11,7 +12,7 @@ Analyze task content and return a list of required requirement/design document p
 
 ## Procedure
 
-1. Read `.claude/doc-advisor/specs/specs_toc.yaml` **completely** (YAML format index)
+1. Read `.claude/doc-advisor/toc/specs/specs_toc.yaml` **completely** (YAML format index)
    - **MANDATORY**: Read the entire file with the Read tool. Do NOT use Grep or search tools on ToC
 2. Deeply understand all entries, then identify relevant candidates from task content
    - Find entries with `doc_type: requirement` (match by keywords, purpose, title)

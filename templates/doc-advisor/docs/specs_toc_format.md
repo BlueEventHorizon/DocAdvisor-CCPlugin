@@ -1,8 +1,17 @@
+---
+name: specs_toc_format
+description: Format definition for specs_toc.yaml (Single Source of Truth)
+applicable_when:
+  - Creating or updating specs ToC entries
+  - Validating specs_toc.yaml structure
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
+---
+
 # specs_toc.yaml Format Definition
 
 ## Purpose
 
-`.claude/doc-advisor/specs/specs_toc.yaml` is the **single source of truth** for the **specs-advisor Subagent** to identify requirement and design documents needed for tasks.
+`.claude/doc-advisor/toc/specs/specs_toc.yaml` is the **single source of truth** for the **specs-advisor Subagent** to identify requirement and design documents needed for tasks.
 
 The quality of this file determines task execution success. **Missing information is not acceptable.**
 
@@ -23,58 +32,9 @@ The quality of this file determines task execution success. **Missing informatio
 - **After colon**: Always one space (`key: value`)
 - **Arrays**: Hyphen + space (`- item`)
 - **No null**: All fields must be filled
-- **No empty arrays**: `[]` is not allowed (minimum 1 item)
+- **No empty arrays**: `[]` is not allowed (minimum 1 item), except for `references`
 - **No inline arrays**: Do not use `[a, b]` format. Always use list format
 - **No multiline**: Do not use `|` or `>`. Write in single line
-
----
-
-## Scan Targets [Single Source of Truth]
-
-```
-{{SPECS_DIR}}/{feature}/{{REQUIREMENT_DIR_NAME}}/**/*.md
-{{SPECS_DIR}}/{feature}/{{DESIGN_DIR_NAME}}/**/*.md
-```
-
-**Exclusions**:
-- `.claude/doc-advisor/specs/specs_toc.yaml` (self)
-- `.claude/doc-advisor/specs/.toc_work/` (work directory)
-- `{{SPECS_DIR}}/**/reference/` (reference materials)
-
----
-
-## Change Detection Method [Single Source of Truth]
-
-In incremental mode, file content hashes are recorded for change detection.
-
-### Checksum File
-
-```yaml
-# .claude/doc-advisor/specs/.toc_checksums.yaml (Git tracked)
-checksums:
-  {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/app_overview.md: a1b2c3d4e5f6...
-  {{SPECS_DIR}}/main/{{DESIGN_DIR_NAME}}/list_screen_design.md: b2c3d4e5f6a1...
-  # ... all target files
-```
-
-### Processing Flow
-
-```
-1. Scan target files (Glob)
-2. Calculate hash for each file (shasum -a 256)
-3. Compare with existing .toc_checksums.yaml:
-   - Hash mismatch → changed → generate pending YAML
-   - New file → added → generate pending YAML
-   - In checksums but file missing → deleted
-4. Process with subagents
-5. After merge, update .toc_checksums.yaml
-```
-
-### Benefits
-
-- Accurate change detection (no false positives/negatives)
-- Git-independent (not affected by commit state)
-- `.toc_checksums.yaml` is Git tracked (incremental detection works across machines)
 
 ---
 
@@ -85,7 +45,7 @@ Structure definition for work files used in individual entry file method.
 ### File Layout
 
 ```
-.claude/doc-advisor/specs/.toc_work/        # Work directory (.gitignore target)
+.claude/doc-advisor/toc/specs/.toc_work/        # Work directory (.gitignore target)
 ├── {{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_app_overview.yaml
 ├── {{SPECS_DIR}}_main_{{DESIGN_DIR_NAME}}_list_screen_design.yaml
 └── ... (for each target file)
@@ -106,7 +66,7 @@ Conversion rule: `/` → `_`, `.md` → `.yaml`
 ### Entry YAML Structure
 
 ```yaml
-# .claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_app_overview.yaml
+# .claude/doc-advisor/toc/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_app_overview.yaml
 
 _meta:
   source_file: {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/app_overview.md  # Path from project root
@@ -120,6 +80,7 @@ purpose: null
 content_details: []
 applicable_tasks: []
 keywords: []
+references: []
 ```
 
 ### _meta Field Description
@@ -168,6 +129,7 @@ docs:
     content_details: array[string] # Content details (5+ items, main requirements/design content)
     applicable_tasks: array[string] # Applicable tasks (task types that need this file)
     keywords: array[string]       # Keywords (matching terms for task descriptions, 5-10 words)
+    references: array[string]     # Referenced documents (direct references only, empty array allowed)
 ```
 
 **Example**:
@@ -193,6 +155,7 @@ docs:
       - feature list
       - use case
       - screen navigation
+    references: []
 
   {{SPECS_DIR}}/main/{{DESIGN_DIR_NAME}}/list_screen_design.md:
     doc_type: design
@@ -214,6 +177,8 @@ docs:
       - SwiftUI
       - state management
       - AsyncStream
+    references:
+      - {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/app_overview.md
 ```
 
 ---
@@ -244,12 +209,21 @@ docs:
 - Include technical terms, concept names, feature names
 - 5-10 words
 
+### references
+
+- List documents **directly referenced** in this file
+- Do NOT follow references (only record what this document mentions)
+- Prefer concrete paths (e.g., `{{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/auth.md`)
+- Abstract references are allowed if specific path is unknown (e.g., "authentication design document")
+- Empty array `[]` is allowed if no references found
+- Do NOT include self-reference
+
 ---
 
 ## Complete Example
 
 ```yaml
-# .claude/doc-advisor/specs/specs_toc.yaml
+# .claude/doc-advisor/toc/specs/specs_toc.yaml
 
 metadata:
   name: Requirement & Design Document Search Index
@@ -273,6 +247,7 @@ docs:
       - application
       - requirements
       - feature list
+    references: []
 
   {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/screens/login_screen.md:
     doc_type: requirement
@@ -291,6 +266,9 @@ docs:
       - authentication
       - validation
       - screen
+    references:
+      - {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/auth/authentication.md
+      - error handling design document
 
   {{SPECS_DIR}}/main/{{DESIGN_DIR_NAME}}/login_screen_design.md:
     doc_type: design
@@ -309,4 +287,6 @@ docs:
       - ViewModel
       - SwiftUI
       - authentication
+    references:
+      - {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/screens/login_screen.md
 ```

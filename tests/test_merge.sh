@@ -50,33 +50,33 @@ echo ""
 
 cd "$TEST_PROJECT"
 
-# Get Python path
-PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/commands/create-rules_toc.md 2>/dev/null | head -1 || echo "python3")
+# Get Python path from orchestrator docs
+PYTHON_CMD=$(grep -oE '(\$HOME|~|/)[^"]*python3' .claude/doc-advisor/docs/rules_orchestrator.md 2>/dev/null | head -1 || echo "python3")
 PYTHON_CMD=$(eval echo "$PYTHON_CMD")
 echo "Using Python: $PYTHON_CMD"
 echo ""
 
-SCRIPTS_DIR="$TEST_PROJECT/.claude/skills/doc-advisor/scripts"
+SCRIPTS_DIR="$TEST_PROJECT/.claude/doc-advisor/scripts"
 
 echo "=================================================="
 echo "Test 2-5: merge_rules_toc.py - Full mode"
 echo "=================================================="
 
 # Clean and regenerate
-rm -f .claude/doc-advisor/rules/rules_toc.yaml
-rm -rf .claude/doc-advisor/rules/.toc_work
+rm -f .claude/doc-advisor/toc/rules/rules_toc.yaml
+rm -rf .claude/doc-advisor/toc/rules/.toc_work
 $PYTHON_CMD "$SCRIPTS_DIR/create_pending_yaml_rules.py" --full 2>/dev/null || true
 
 # Get pending file and write completed entry
-RULES_PENDING=$(ls .claude/doc-advisor/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
+RULES_PENDING=$(ls .claude/doc-advisor/toc/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
 if [[ -n "$RULES_PENDING" ]]; then
     $PYTHON_CMD "$SCRIPTS_DIR/write_rules_pending.py" \
         --entry-file "$RULES_PENDING" \
         --title "Coding Standards" \
         --purpose "Define coding practices" \
-        --content-details "Naming,Structure,Errors,Testing,Docs" \
+        --content-details "Naming ||| Structure ||| Errors ||| Testing ||| Docs" \
         --applicable-tasks "Code review" \
-        --keywords "coding,standards,naming,structure,testing" \
+        --keywords "coding ||| standards ||| naming ||| structure ||| testing" \
         --force 2>/dev/null || true
 fi
 
@@ -87,12 +87,12 @@ $PYTHON_CMD "$SCRIPTS_DIR/merge_rules_toc.py" --mode full 2>/dev/null || EXIT_CO
 test_result "merge_rules_toc full mode" "0" "$EXIT_CODE"
 
 # Verify output file exists
-if [[ -f ".claude/doc-advisor/rules/rules_toc.yaml" ]]; then
+if [[ -f ".claude/doc-advisor/toc/rules/rules_toc.yaml" ]]; then
     echo -e "${GREEN}PASS${NC}: rules_toc.yaml created"
     ((PASS_COUNT++))
 
     # Verify content
-    if grep -q "docs:" .claude/doc-advisor/rules/rules_toc.yaml; then
+    if grep -q "docs:" .claude/doc-advisor/toc/rules/rules_toc.yaml; then
         echo -e "${GREEN}PASS${NC}: rules_toc.yaml has docs section"
         ((PASS_COUNT++))
     else
@@ -110,7 +110,9 @@ echo "Test 2-6: merge_rules_toc.py - Incremental mode"
 echo "=================================================="
 
 # Add another pending entry (simulate new file)
-WORK_DIR=".claude/doc-advisor/rules/.toc_work"
+# Create the actual source file so merge won't skip it as missing
+echo "# New Rule" > "rules/new_rule.md"
+WORK_DIR=".claude/doc-advisor/toc/rules/.toc_work"
 mkdir -p "$WORK_DIR"
 cat > "$WORK_DIR/rules_new_rule.yaml" << 'EOF'
 _meta:
@@ -143,7 +145,7 @@ $PYTHON_CMD "$SCRIPTS_DIR/merge_rules_toc.py" --mode incremental 2>/dev/null || 
 test_result "merge_rules_toc incremental mode" "0" "$EXIT_CODE"
 
 # Verify both entries exist (count lines starting with 2 spaces followed by path)
-ENTRY_COUNT=$(grep -cE "^  (rules|specs)/" .claude/doc-advisor/rules/rules_toc.yaml 2>/dev/null | tr -d '[:space:]' || echo "0")
+ENTRY_COUNT=$(grep -cE "^  (rules|specs)/" .claude/doc-advisor/toc/rules/rules_toc.yaml 2>/dev/null | tr -d '[:space:]' || echo "0")
 if [[ -z "$ENTRY_COUNT" ]]; then ENTRY_COUNT=0; fi
 if [[ "$ENTRY_COUNT" -ge 2 ]]; then
     echo -e "${GREEN}PASS${NC}: Multiple entries merged ($ENTRY_COUNT entries)"
@@ -159,20 +161,20 @@ echo "Test 2-7: merge_specs_toc.py - Full mode with doc_type"
 echo "=================================================="
 
 # Clean and regenerate
-rm -f .claude/doc-advisor/specs/specs_toc.yaml
-rm -rf .claude/doc-advisor/specs/.toc_work
+rm -f .claude/doc-advisor/toc/specs/specs_toc.yaml
+rm -rf .claude/doc-advisor/toc/specs/.toc_work
 $PYTHON_CMD "$SCRIPTS_DIR/create_pending_yaml_specs.py" --full 2>/dev/null || true
 
 # Get pending files and write completed entries
-for SPECS_PENDING in .claude/doc-advisor/specs/.toc_work/*.yaml; do
+for SPECS_PENDING in .claude/doc-advisor/toc/specs/.toc_work/*.yaml; do
     if [[ -f "$SPECS_PENDING" ]]; then
         $PYTHON_CMD "$SCRIPTS_DIR/write_specs_pending.py" \
             --entry-file "$SPECS_PENDING" \
             --title "Test Spec Document" \
             --purpose "Testing specs merge" \
-            --content-details "Item1,Item2,Item3,Item4,Item5" \
+            --content-details "Item1 ||| Item2 ||| Item3 ||| Item4 ||| Item5" \
             --applicable-tasks "Testing" \
-            --keywords "test,spec,doc,merge,yaml" \
+            --keywords "test ||| spec ||| doc ||| merge ||| yaml" \
             --force 2>/dev/null || true
     fi
 done
@@ -184,12 +186,12 @@ $PYTHON_CMD "$SCRIPTS_DIR/merge_specs_toc.py" --mode full 2>/dev/null || EXIT_CO
 test_result "merge_specs_toc full mode" "0" "$EXIT_CODE"
 
 # Verify output file exists and has doc_type
-if [[ -f ".claude/doc-advisor/specs/specs_toc.yaml" ]]; then
+if [[ -f ".claude/doc-advisor/toc/specs/specs_toc.yaml" ]]; then
     echo -e "${GREEN}PASS${NC}: specs_toc.yaml created"
     ((PASS_COUNT++))
 
     # Verify doc_type is preserved
-    if grep -q "doc_type:" .claude/doc-advisor/specs/specs_toc.yaml; then
+    if grep -q "doc_type:" .claude/doc-advisor/toc/specs/specs_toc.yaml; then
         echo -e "${GREEN}PASS${NC}: specs_toc.yaml has doc_type fields"
         ((PASS_COUNT++))
     else
@@ -210,22 +212,22 @@ echo "=================================================="
 $PYTHON_CMD "$SCRIPTS_DIR/create_pending_yaml_rules.py" --full 2>/dev/null || true
 
 # Write and merge with cleanup
-RULES_PENDING=$(ls .claude/doc-advisor/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
+RULES_PENDING=$(ls .claude/doc-advisor/toc/rules/.toc_work/*.yaml 2>/dev/null | head -1 || echo "")
 if [[ -n "$RULES_PENDING" ]]; then
     $PYTHON_CMD "$SCRIPTS_DIR/write_rules_pending.py" \
         --entry-file "$RULES_PENDING" \
         --title "Cleanup Test" \
         --purpose "Test cleanup option" \
-        --content-details "a,b,c,d,e" \
+        --content-details "a ||| b ||| c ||| d ||| e" \
         --applicable-tasks "test" \
-        --keywords "a,b,c,d,e" \
+        --keywords "a ||| b ||| c ||| d ||| e" \
         --force 2>/dev/null || true
 fi
 
 $PYTHON_CMD "$SCRIPTS_DIR/merge_rules_toc.py" --mode full --cleanup 2>/dev/null || true
 
 # Check if .toc_work is cleaned up
-if [[ ! -d ".claude/doc-advisor/rules/.toc_work" ]] || [[ -z "$(ls -A .claude/doc-advisor/rules/.toc_work 2>/dev/null)" ]]; then
+if [[ ! -d ".claude/doc-advisor/toc/rules/.toc_work" ]] || [[ -z "$(ls -A .claude/doc-advisor/toc/rules/.toc_work 2>/dev/null)" ]]; then
     echo -e "${GREEN}PASS${NC}: .toc_work cleaned up after merge"
     ((PASS_COUNT++))
 else

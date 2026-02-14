@@ -46,7 +46,7 @@ CONFIG_FILE="${TARGET_DIR}/.claude/doc-advisor/config.yaml"
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
     echo "Error: config.yaml not found: $CONFIG_FILE"
-    echo "Run 'make setup' first."
+    echo "Run './setup.sh' first."
     exit 1
 fi
 
@@ -85,56 +85,72 @@ echo "  3) both (default)"
 read -p "Choice [3]: " CHOICE
 CHOICE="${CHOICE:-3}"
 
-# Function to add pattern to a section
-add_pattern_to_section() {
+# Function to add patterns to a section using awk (cross-platform)
+add_patterns_to_section() {
     local section="$1"
-    local pattern="$2"
-    local file="$3"
+    local file="$2"
+    shift 2
+    local patterns=("$@")
 
-    # Find the last line of exclude section (before output: or next section)
+    # Build patterns string for awk
+    local patterns_str=""
+    for pattern in "${patterns[@]}"; do
+        patterns_str="${patterns_str}      - ${pattern}\n"
+    done
+
+    # Determine section boundaries
+    local start_pattern end_pattern
     if [[ "$section" == "rules" ]]; then
-        # Find last exclude item line in rules section (before "  output:")
-        local line_num=$(awk '/^rules:/,/^specs:/{
-            if(/^  patterns:/) in_patterns=1
-            if(in_patterns && /exclude:/) in_exclude=1
-            if(in_exclude && /^      [#-]/) last_line=NR
-            if(in_exclude && /^  output:/) {print last_line; exit}
-        }' "$file")
+        start_pattern="^rules:"
+        end_pattern="^specs:"
     else
-        # Find last exclude item line in specs section (before "  output:")
-        local line_num=$(awk '/^specs:/,/^common:/{
-            if(/^  patterns:/) in_patterns=1
-            if(in_patterns && /exclude:/) in_exclude=1
-            if(in_exclude && /^      [#-]/) last_line=NR
-            if(in_exclude && /^  output:/) {print last_line; exit}
-        }' "$file")
+        start_pattern="^specs:"
+        end_pattern="^common:"
     fi
 
-    if [[ -n "$line_num" ]]; then
-        # Insert after the last exclude item
-        sed -i '' "${line_num}a\\
-      - ${pattern}
-" "$file"
-    else
-        echo "Warning: Could not find exclude section in $section"
-    fi
+    # Use awk to insert patterns after "exclude:" line in the target section
+    awk -v start="$start_pattern" -v end="$end_pattern" -v patterns="$patterns_str" '
+    BEGIN { in_section = 0; done = 0 }
+    $0 ~ start { in_section = 1 }
+    $0 ~ end { in_section = 0 }
+    {
+        print
+        if (in_section && !done && /^    exclude:/) {
+            # Convert \n to actual newlines
+            gsub(/\\n/, "\n", patterns)
+            printf "%s", patterns
+            done = 1
+        }
+    }
+    ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+
+    for pattern in "${patterns[@]}"; do
+        echo "Added to $section: $pattern"
+    done
 }
 
-# Add patterns
+# Trim whitespace from patterns
+TRIMMED_PATTERNS=()
 for pattern in "${PATTERN_ARRAY[@]}"; do
-    # Trim whitespace
-    pattern=$(echo "$pattern" | xargs)
-
-    if [[ "$CHOICE" == "1" || "$CHOICE" == "3" ]]; then
-        add_pattern_to_section "rules" "$pattern" "$CONFIG_FILE"
-        echo "Added to rules: $pattern"
-    fi
-
-    if [[ "$CHOICE" == "2" || "$CHOICE" == "3" ]]; then
-        add_pattern_to_section "specs" "$pattern" "$CONFIG_FILE"
-        echo "Added to specs: $pattern"
+    trimmed=$(echo "$pattern" | xargs)
+    if [[ -n "$trimmed" ]]; then
+        TRIMMED_PATTERNS+=("$trimmed")
     fi
 done
+
+if [[ ${#TRIMMED_PATTERNS[@]} -eq 0 ]]; then
+    echo "No valid patterns entered. Exiting."
+    exit 0
+fi
+
+# Add patterns to selected sections
+if [[ "$CHOICE" == "1" || "$CHOICE" == "3" ]]; then
+    add_patterns_to_section "rules" "$CONFIG_FILE" "${TRIMMED_PATTERNS[@]}"
+fi
+
+if [[ "$CHOICE" == "2" || "$CHOICE" == "3" ]]; then
+    add_patterns_to_section "specs" "$CONFIG_FILE" "${TRIMMED_PATTERNS[@]}"
+fi
 
 echo ""
 echo "Done. Updated excludes:"

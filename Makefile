@@ -1,4 +1,4 @@
-# Doc Advisor Makefile (v3.0)
+# Doc Advisor Makefile
 #
 # Usage:
 #   make help               # Show help
@@ -14,7 +14,7 @@
 .DEFAULT_GOAL := help
 
 help:
-	@echo "Doc Advisor (v3.0)"
+	@VERSION=$$(grep 'DOC_ADVISOR_VERSION=' setup.sh | cut -d'"' -f2); echo "Doc Advisor (v$$VERSION)"
 	@echo ""
 	@echo "Usage:"
 	@echo "  make help                    Show this help message"

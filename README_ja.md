@@ -1,4 +1,4 @@
-# Doc Advisor (v3.0)
+# Doc Advisor
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -27,6 +27,7 @@ Doc Advisor の目的は「必要な文書を、短時間で、確実に特定�
 - **差分更新**: SHA-256 で変更検出
 - **並列処理**: 最大 5 並列
 - **中断耐性**: 完了分を保持し再開可能
+- **シンボリックリンク対応**: シンボリックリンク経由で外部ドキュメントを統合 (v3.2+)
 
 詳細は [TECHNICAL_GUIDE_ja.md](TECHNICAL_GUIDE_ja.md) を参照してください。
 
@@ -72,8 +73,8 @@ claude
 4) 初回 ToC 生成
 
 ```bash
-/create-rules_toc --full
-/create-specs_toc --full
+/create-rules-toc --full
+/create-specs-toc --full
 ```
 
 > Makefile を使う場合:
@@ -88,11 +89,11 @@ claude
 ### ToC 生成コマンド
 
 ```bash
-/create-rules_toc          # 差分更新
-/create-rules_toc --full   # 全件再生成
+/create-rules-toc          # 差分更新
+/create-rules-toc --full   # 全件再生成
 
-/create-specs_toc          # 差分更新
-/create-specs_toc --full   # 全件再生成
+/create-specs-toc          # 差分更新
+/create-specs-toc --full   # 全件再生成
 ```
 
 ### Advisor エージェント

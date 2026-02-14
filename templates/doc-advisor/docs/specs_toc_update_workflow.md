@@ -3,15 +3,16 @@ name: specs_toc_update_workflow
 description: specs_toc.yaml update workflow (individual entry file method)
 applicable_when:
   - Running as specs-toc-updater Agent
-  - Executing /create-specs_toc command
+  - Executing /create-specs-toc
   - After adding, modifying, or deleting requirement/design documents
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
 ---
 
 # specs_toc.yaml Update Workflow
 
 ## Overview
 
-Workflow for updating `.claude/doc-advisor/specs/specs_toc.yaml`. Uses **individual entry file method** with interruption tolerance, processing each requirement/design document in parallel.
+Workflow for updating `.claude/doc-advisor/toc/specs/specs_toc.yaml`. Uses **individual entry file method** with interruption tolerance, processing each requirement/design document in parallel.
 
 ## Architecture
 
@@ -25,7 +26,7 @@ Workflow for updating `.claude/doc-advisor/specs/specs_toc.yaml`. Uses **individ
 ### Directory Structure
 
 ```
-.claude/doc-advisor/specs/
+.claude/doc-advisor/toc/specs/
 ├── specs_toc.yaml              # Final artifact (after merge)
 ├── .toc_checksums.yaml         # Change detection checksums
 └── .toc_work/                  # Work directory (.gitignore target)
@@ -48,9 +49,9 @@ Workflow for updating `.claude/doc-advisor/specs/specs_toc.yaml`. Uses **individ
 ## Workflow Overview
 
 ```
-/create-specs_toc execution
+/create-specs-toc execution
     ↓
-Check .claude/doc-advisor/specs/.toc_work/ existence
+Check .claude/doc-advisor/toc/specs/.toc_work/ existence
     ↓
 [If not exists] New processing
     ├─ full: Generate pending YAML for all files
@@ -72,10 +73,10 @@ Delete .toc_work/ (cleanup)
 
 ## Phase 1: Initialization (Orchestrator)
 
-### Step 1.1: Check .claude/doc-advisor/specs/.toc_work/ existence
+### Step 1.1: Check .claude/doc-advisor/toc/specs/.toc_work/ existence
 
 ```bash
-test -d .claude/doc-advisor/specs/.toc_work && echo "EXISTS" || echo "NOT_EXISTS"
+test -d .claude/doc-advisor/toc/specs/.toc_work && echo "EXISTS" || echo "NOT_EXISTS"
 ```
 
 ### Step 1.2: Processing when not exists
@@ -134,6 +135,7 @@ test -d .claude/doc-advisor/specs/.toc_work && echo "EXISTS" || echo "NOT_EXISTS
    - `content_details`: Content details (5-10 items)
    - `applicable_tasks`: Applicable tasks
    - `keywords`: 5-10 words
+   - `references`: Direct references found in document (empty array if none)
 4. Set `_meta.status: completed` and `_meta.updated_at`
 5. Write and save
 
@@ -157,28 +159,28 @@ Output warning if incomplete (processing continues)
 
 #### full mode
 
-1. Read all `.claude/doc-advisor/specs/.toc_work/*.yaml`
+1. Read all `.claude/doc-advisor/toc/specs/.toc_work/*.yaml`
 2. Aggregate into `docs` section (key: file path with `{{SPECS_DIR}}/` prefix)
 3. Set metadata:
    - `name`: "Requirement & Design Document Search Index"
    - `generated_at`: Current time (ISO 8601 format)
    - `file_count`: Total count
-4. Write to `.claude/doc-advisor/specs/specs_toc.yaml`
+4. Write to `.claude/doc-advisor/toc/specs/specs_toc.yaml`
 
 #### incremental mode
 
-1. Read existing `.claude/doc-advisor/specs/specs_toc.yaml`
+1. Read existing `.claude/doc-advisor/toc/specs/specs_toc.yaml`
 2. Detect deleted files via checksum comparison and remove corresponding entries
 3. Overwrite/add entries from `.toc_work/*.yaml`
 4. Update metadata
-5. Write to `.claude/doc-advisor/specs/specs_toc.yaml`
-6. Update `.claude/doc-advisor/specs/.toc_checksums.yaml` (run `/create-toc-checksums` skill)
+5. Write to `.claude/doc-advisor/toc/specs/specs_toc.yaml`
+6. Update `.claude/doc-advisor/toc/specs/.toc_checksums.yaml` (run `/create-toc-checksums` skill)
 
 ### Step 3.3: Cleanup
 
 Delete `.toc_work/` directory:
 ```bash
-rm -rf .claude/doc-advisor/specs/.toc_work
+rm -rf .claude/doc-advisor/toc/specs/.toc_work
 ```
 
 ---
@@ -186,7 +188,7 @@ rm -rf .claude/doc-advisor/specs/.toc_work
 ## Pending YAML Template Generation
 
 - Input: File path (e.g., `{{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/app_overview.md`)
-- Output: `.claude/doc-advisor/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_app_overview.yaml`
+- Output: `.claude/doc-advisor/toc/specs/.toc_work/{{SPECS_DIR}}_main_{{REQUIREMENT_DIR_NAME}}_app_overview.yaml`
 
 Filename conversion rule: `/` → `_`, `.md` → `.yaml` (including `{{SPECS_DIR}}/` prefix)
 
@@ -219,7 +221,7 @@ Check before merge:
 
 ### On merge error
 
-- Do not delete `.claude/doc-advisor/specs/.toc_work/` (can re-run)
+- Do not delete `.claude/doc-advisor/toc/specs/.toc_work/` (can re-run)
 - Report error content
 - Prompt manual intervention
 
@@ -230,7 +232,7 @@ Check before merge:
 After generation/update, verify:
 
 - [ ] All {{REQUIREMENT_DIR_NAME}}/ and {{DESIGN_DIR_NAME}}/ files are listed
-- [ ] Each entry has required fields (doc_type, title, purpose, content_details, applicable_tasks, keywords)
+- [ ] Each entry has required fields (doc_type, title, purpose, content_details, applicable_tasks, keywords, references)
 - [ ] purpose contains "what it defines" (1-2 lines)
 - [ ] keywords contain task-matchable terms (5-10 words)
 - [ ] YAML syntax is correct (indentation, colons, hyphens)
@@ -243,5 +245,5 @@ After generation/update, verify:
 
 - `specs_toc_format.md` - Format definition (Single Source of Truth)
 - `agents/specs-toc-updater.md` - Single file processing subagent
-- `commands/create-specs_toc.md` - Orchestrator command
+- `doc-advisor/docs/specs_orchestrator.md` - Orchestrator workflow
 - `agents/specs-advisor.md` - Search subagent

@@ -1,4 +1,4 @@
-# Doc Advisor (v3.0)
+# Doc Advisor
 
 [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -29,6 +29,7 @@ Key features:
 - **Incremental updates**: SHA-256 change detection
 - **Parallel processing**: Up to 5 concurrent workers
 - **Interruption recovery**: Preserve completed work and resume
+- **Symlink support**: Include external documentation via symbolic links (v3.2+)
 
 For full details, see [TECHNICAL_GUIDE.md](TECHNICAL_GUIDE.md).
 
@@ -74,8 +75,8 @@ claude
 4) Generate initial ToC files
 
 ```bash
-/create-rules_toc --full
-/create-specs_toc --full
+/create-rules-toc --full
+/create-specs-toc --full
 ```
 
 > Using the Makefile:
@@ -90,11 +91,11 @@ claude
 ### ToC generation commands
 
 ```bash
-/create-rules_toc          # Incremental update
-/create-rules_toc --full   # Full rebuild
+/create-rules-toc          # Incremental update
+/create-rules-toc --full   # Full rebuild
 
-/create-specs_toc          # Incremental update
-/create-specs_toc --full   # Full rebuild
+/create-specs-toc          # Incremental update
+/create-specs-toc --full   # Full rebuild
 ```
 
 ### Advisor agents

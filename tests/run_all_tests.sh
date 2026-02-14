@@ -57,12 +57,16 @@ run_test "Phase 2a: write_pending.py" "test_write_pending.sh"
 run_test "Phase 2b: merge_toc.py" "test_merge.sh"
 run_test "Phase 2c: create_checksums.py" "test_checksums.sh"
 run_test "Phase 2d: should_exclude()" "test_should_exclude.sh"
+run_test "Phase 2e: symlink support" "test_symlink.sh"
 
 # Phase 3: Custom directory tests
 run_test "Phase 3: Custom Directories" "test_custom_dirs.sh"
 
 # Phase 4: Edge cases
 run_test "Phase 4: Edge Cases" "test_edge_cases.sh"
+
+# Phase 5: Setup upgrade scenarios
+run_test "Phase 5: Setup Upgrade" "test_setup_upgrade.sh"
 
 # Count results
 PASS_COUNT=0

@@ -1,8 +1,17 @@
+---
+name: rules_toc_format
+description: Format definition for rules_toc.yaml (Single Source of Truth)
+applicable_when:
+  - Creating or updating rules ToC entries
+  - Validating rules_toc.yaml structure
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
+---
+
 # rules_toc.yaml Format Definition
 
 ## Purpose
 
-`.claude/doc-advisor/rules/rules_toc.yaml` is the **single source of truth** for the **rules-advisor Subagent** to identify documents needed for tasks.
+`.claude/doc-advisor/toc/rules/rules_toc.yaml` is the **single source of truth** for the **rules-advisor Subagent** to identify documents needed for tasks.
 
 The quality of this file determines task execution success. **Missing information is not acceptable.**
 
@@ -29,54 +38,6 @@ The quality of this file determines task execution success. **Missing informatio
 
 ---
 
-## Scan Targets [Single Source of Truth]
-
-```
-{{RULES_DIR}}/**/*.md
-```
-
-**Exclusions**:
-- `.claude/doc-advisor/rules/rules_toc.yaml` (self)
-- `.claude/doc-advisor/rules/.toc_work/` (work directory)
-- `{{RULES_DIR}}/**/reference/` (reference materials)
-
----
-
-## Change Detection Method [Single Source of Truth]
-
-In incremental mode, file content hashes are recorded for change detection.
-
-### Checksum File
-
-```yaml
-# .claude/doc-advisor/rules/.toc_checksums.yaml (Git tracked)
-checksums:
-  {{RULES_DIR}}/core/architecture_rule.md: a1b2c3d4e5f6...
-  {{RULES_DIR}}/core/coding_rule.md: b2c3d4e5f6a1...
-  # ... all target files
-```
-
-### Processing Flow
-
-```
-1. Scan target files (Glob)
-2. Calculate hash for each file (shasum -a 256)
-3. Compare with existing .toc_checksums.yaml:
-   - Hash mismatch → changed → generate pending YAML
-   - New file → added → generate pending YAML
-   - In checksums but file missing → deleted
-4. Process with subagents
-5. After merge, update .toc_checksums.yaml
-```
-
-### Benefits
-
-- Accurate change detection (no false positives/negatives)
-- Git-independent (not affected by commit state)
-- `.toc_checksums.yaml` is Git tracked (incremental detection works across machines)
-
----
-
 ## Intermediate File Schema [Single Source of Truth]
 
 Structure definition for work files used in individual entry file method.
@@ -84,7 +45,7 @@ Structure definition for work files used in individual entry file method.
 ### File Layout
 
 ```
-.claude/doc-advisor/rules/.toc_work/   # Work directory (.gitignore target)
+.claude/doc-advisor/toc/rules/.toc_work/   # Work directory (.gitignore target)
 ├── {{RULES_DIR}}_core_architecture_rule.yaml
 ├── {{RULES_DIR}}_core_coding_rule.yaml
 ├── {{RULES_DIR}}_layer_domain_domain_core.yaml
@@ -106,7 +67,7 @@ Conversion rule: `/` → `_`, `.md` → `.yaml`
 ### Entry YAML Structure
 
 ```yaml
-# .claude/doc-advisor/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml
+# .claude/doc-advisor/toc/rules/.toc_work/{{RULES_DIR}}_core_architecture_rule.yaml
 
 _meta:
   source_file: {{RULES_DIR}}/core/architecture_rule.md    # Path from project root
@@ -222,7 +183,7 @@ docs:
 ## Complete Example
 
 ```yaml
-# .claude/doc-advisor/rules/rules_toc.yaml
+# .claude/doc-advisor/toc/rules/rules_toc.yaml
 
 metadata:
   name: Development Document Search Index
