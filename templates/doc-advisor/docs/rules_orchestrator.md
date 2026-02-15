@@ -221,7 +221,7 @@ Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/
 
 ```bash
 # 1. Merge
-{{PYTHON_PATH}} .claude/doc-advisor/scripts/merge_rules_toc.py --mode full --cleanup
+{{PYTHON_PATH}} .claude/doc-advisor/scripts/merge_rules_toc.py --mode full
 
 # 2. Validate (check return value)
 {{PYTHON_PATH}} .claude/doc-advisor/scripts/validate_rules_toc.py
@@ -232,13 +232,16 @@ Task(subagent_type: rules-toc-updater, prompt: "entry_file: .claude/doc-advisor/
 #    Use Phase 1 snapshot instead of recalculating current hashes.
 #    This ensures files modified during Phase 2 will be re-processed next time.
 cp .claude/doc-advisor/toc/rules/.toc_work/.toc_checksums_pending.yaml .claude/doc-advisor/toc/rules/.toc_checksums.yaml
+
+# 4. Cleanup
+rm -rf .claude/doc-advisor/toc/rules/.toc_work
 ```
 
 ### Incremental Mode
 
 ```bash
 # 1. Merge
-{{PYTHON_PATH}} .claude/doc-advisor/scripts/merge_rules_toc.py --mode incremental --cleanup
+{{PYTHON_PATH}} .claude/doc-advisor/scripts/merge_rules_toc.py --mode incremental
 
 # 2. Validate (check return value)
 {{PYTHON_PATH}} .claude/doc-advisor/scripts/validate_rules_toc.py
@@ -249,6 +252,9 @@ cp .claude/doc-advisor/toc/rules/.toc_work/.toc_checksums_pending.yaml .claude/d
 #    Use Phase 1 snapshot instead of recalculating current hashes.
 #    This ensures files modified during Phase 2 will be re-processed next time.
 cp .claude/doc-advisor/toc/rules/.toc_work/.toc_checksums_pending.yaml .claude/doc-advisor/toc/rules/.toc_checksums.yaml
+
+# 4. Cleanup
+rm -rf .claude/doc-advisor/toc/rules/.toc_work
 ```
 
 ### Delete-only Mode (N=0 and M>0)
