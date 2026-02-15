@@ -4,7 +4,7 @@ description: Orchestrator workflow for specs_toc.yaml generation
 applicable_when:
   - Executing /create-specs-toc skill
   - Coordinating specs ToC generation process
-doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}"
+doc-advisor-version-xK9XmQ: {{DOC_ADVISOR_VERSION}}
 ---
 
 # specs_toc.yaml Orchestrator Workflow
@@ -286,13 +286,24 @@ rm -rf .claude/doc-advisor/toc/specs/.toc_work
 
 When subagent fails, **immediately change to error status without retry**:
 
-1. Change `_meta.status` to `error` in the YAML
-2. Record error content in `_meta.error_message`
-3. Exclude from processing (skip at merge)
-4. List error files in completion report
+1. Read the entry YAML file to get its current content
+2. Edit `_meta.status` from `pending` to `error` in the YAML
+3. Add `_meta.error_message` with the error details from the subagent response
+4. Exclude from processing (skip at merge)
+5. List error files in completion report
+
+**Concrete steps** (orchestrator uses Edit tool):
+```
+# 1. Read the failed entry file
+Read(".claude/doc-advisor/toc/specs/.toc_work/{filename}.yaml")
+
+# 2. Edit _meta.status and add error_message
+Edit: change "status: pending" → "status: error"
+Edit: add "error_message: {error details from subagent}"
+```
 
 ```yaml
-# Example of error status YAML
+# Example of error status YAML (after Edit)
 _meta:
   status: error
   source_file: {{SPECS_DIR}}/main/{{REQUIREMENT_DIR_NAME}}/screens/login_screen.md
